@@ -71,7 +71,7 @@ const badgeClass = (b) => {
     </div>
 
     <!-- Stvarna slika iz skripte -->
-    <div v-else-if="visual.image" class="w-full max-w-[220px]">
+    <div v-else-if="visual.image" class="w-full max-w-[220px] mx-auto">
       <div class="relative rounded-xl overflow-hidden bg-black/60 border border-slate-700/80 shadow-lg">
         <img
           :src="imageSrc"

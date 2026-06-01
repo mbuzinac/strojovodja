@@ -75,16 +75,18 @@ const filtered = computed(() => {
           :key="`${signal.categoryId}-${signal.name}-${i}`"
           class="card-dark overflow-hidden"
         >
-          <div class="bg-slate-950 border-b border-slate-800">
-            <SignalVisual :visual="signal.visual" :alt="signal.name" />
+          <div class="bg-slate-950 border-b border-slate-800 px-2 py-3">
+            <SignalVisual :visual="signal.visual" :alt="signal.name" :show-badges="false" />
           </div>
           <div class="p-4">
-            <div class="flex items-start justify-between gap-2 mb-2">
-              <h3 class="text-sm font-semibold text-cyan-300 leading-snug">{{ signal.name }}</h3>
-              <span class="text-[10px] text-slate-600 shrink-0">{{ signal.categoryIcon }}</span>
+            <div class="flex items-start gap-2 mb-2 min-w-0">
+              <h3 class="text-sm font-semibold text-cyan-300 leading-snug break-words flex-1 min-w-0">
+                {{ signal.name }}
+              </h3>
+              <span class="text-base shrink-0 leading-none mt-0.5">{{ signal.categoryIcon }}</span>
             </div>
             <p class="text-[10px] text-slate-600 mb-2">{{ signal.categoryTitle }}</p>
-            <p class="text-xs text-slate-400 leading-relaxed">{{ signal.description }}</p>
+            <p class="text-xs text-slate-400 leading-relaxed break-words">{{ signal.description }}</p>
           </div>
         </article>
       </div>

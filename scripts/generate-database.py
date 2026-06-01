@@ -400,22 +400,19 @@ def enrich_blocks_with_images(blocks):
         else:
             out.append(b)
     return out
+
+
+def dedupe_blocks(blocks):
+    """Ukloni uzastopne duplikate slika (ista datoteka dva puta zaredom)."""
     out = []
-    li_buf = []
-    for b in raw_blocks:
-        if b['type'] == 'li':
-            li_buf.append(b['text'])
-        elif b['type'] == 'break':
-            if li_buf:
-                out.append({'type': 'ul', 'items': li_buf})
-                li_buf = []
-        else:
-            if li_buf:
-                out.append({'type': 'ul', 'items': li_buf})
-                li_buf = []
-            out.append(b)
-    if li_buf:
-        out.append({'type': 'ul', 'items': li_buf})
+    for b in blocks:
+        if b['type'] == 'image':
+            src = b.get('src')
+            if out and out[-1]['type'] == 'image' and out[-1].get('src') == src:
+                continue
+            if out and out[-1]['type'] == 'item' and out[-1].get('image') == src:
+                continue
+        out.append(b)
     return out
 
 
@@ -445,6 +442,7 @@ def extract_lessons_from_theory(text, slika_map=None):
             return
         blocks = normalize_blocks(current['blocks'])
         blocks = enrich_blocks_with_images(blocks)
+        blocks = dedupe_blocks(blocks)
         blocks = [
             b for b in blocks
             if b['type'] == 'image'

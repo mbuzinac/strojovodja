@@ -27,7 +27,17 @@ const blocks = computed(() => {
     return b.text?.trim()
   })
 
-  if (filtered.length) return filtered
+  const deduped = []
+  for (const b of filtered) {
+    if (b.type === 'image') {
+      const prev = deduped[deduped.length - 1]
+      if (prev?.type === 'image' && prev.src === b.src) continue
+      if (prev?.type === 'item' && prev.image === b.src) continue
+    }
+    deduped.push(b)
+  }
+
+  if (deduped.length) return deduped
 
   if (props.lesson?.image) {
     return [{ type: 'image', src: props.lesson.image }]
@@ -105,9 +115,9 @@ const hasInlineImages = computed(() => blocks.value.some(b => b.type === 'item' 
 
       <div
         v-else-if="block.type === 'note'"
-        class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3"
+        class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 overflow-hidden"
       >
-        <p class="text-sm text-cyan-100/90 leading-relaxed">{{ block.text }}</p>
+        <p class="text-sm text-cyan-100/90 leading-relaxed break-words">{{ block.text }}</p>
       </div>
     </template>
   </div>
