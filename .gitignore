@@ -1,0 +1,13 @@
+node_modules/
+.nuxt/
+.output/
+dist
+dist/
+.data/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+.venv/
+__pycache__/

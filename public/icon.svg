@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" rx="96" fill="#0f172a"/>
+  <rect x="32" y="32" width="448" height="448" rx="80" fill="#020617" stroke="#06b6d4" stroke-width="8"/>
+  <text x="256" y="200" text-anchor="middle" font-size="120">🚂</text>
+  <text x="256" y="340" text-anchor="middle" fill="#22d3ee" font-family="system-ui,sans-serif" font-size="48" font-weight="bold">HŽ</text>
+  <circle cx="256" cy="400" r="8" fill="#22c55e"/>
+  <circle cx="220" cy="400" r="8" fill="#ef4444"/>
+  <circle cx="292" cy="400" r="8" fill="#eab308"/>
+</svg>
