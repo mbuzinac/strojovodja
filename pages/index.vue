@@ -1,11 +1,11 @@
 <script setup>
-import { railwayData } from '~/data/database.js'
+import { railwayData, examBank } from '~/data/database.js'
 
 const { categoryPercent } = useProgress()
 
 useHead({ title: 'Strojovođa – Učenje signalnih propisa' })
 
-const totalQuestions = computed(() => railwayData.reduce((s, c) => s + (c.quiz?.length || 0), 0))
+const totalQuizQuestions = computed(() => railwayData.reduce((s, c) => s + (c.quiz?.length || 0), 0))
 const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?.length || 0), 0))
 </script>
 
@@ -29,7 +29,10 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
         </p>
         <div class="flex flex-wrap gap-3 text-xs">
           <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700">
-            {{ totalQuestions }}+ pitanja
+            {{ examBank.length }} ispitnih pitanja
+          </span>
+          <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700">
+            {{ totalQuizQuestions }} kviz pitanja
           </span>
           <span class="px-3 py-1.5 rounded-lg bg-slate-800/80 text-slate-300 border border-slate-700">
             {{ totalSignals }} signala
@@ -53,7 +56,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
           <span class="text-3xl group-hover:scale-110 transition-transform">🔍</span>
           <div>
             <p class="font-semibold text-white group-hover:text-emerald-300">Pretraga pitanja</p>
-            <p class="text-xs text-slate-500">Ispitna pitanja s odgovorom odmah vidljivim</p>
+            <p class="text-xs text-slate-500">{{ examBank.length }} pitanja i odgovora iz skripte</p>
           </div>
         </NuxtLink>
         <NuxtLink
@@ -98,7 +101,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
               <div class="flex flex-wrap gap-1.5 text-[10px]">
                 <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400">{{ category.lessons.length }} lekcija</span>
                 <span class="px-2 py-0.5 rounded bg-slate-800 text-slate-400">{{ category.signals.length }} signala</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-400">{{ category.quiz.length }} pitanja</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-900/40 text-emerald-400">{{ category.quiz.length }} kviz</span>
               </div>
             </div>
           </div>
