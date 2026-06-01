@@ -28,8 +28,16 @@ const typeBadge = computed(() => {
   const t = currentQuestion.value?.type
   if (t === 'signal') return { label: 'Signal', class: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40' }
   if (t === 'theory') return { label: 'Teorija', class: 'bg-violet-500/20 text-violet-300 border-violet-500/40' }
+  if (t === 'recall') return { label: 'Učenje', class: 'bg-sky-500/20 text-sky-300 border-sky-500/40' }
   return { label: 'Ispit', class: 'bg-amber-500/20 text-amber-300 border-amber-500/40' }
 })
+
+const isRecall = computed(() =>
+  currentQuestion.value?.type === 'recall'
+  || !currentQuestion.value?.options?.length,
+)
+
+const revealed = ref(false)
 
 function playHorn() {
   try {
@@ -59,9 +67,27 @@ function nextQuestion() {
     currentIndex.value++
     selectedIndex.value = null
     answered.value = false
+    revealed.value = false
   } else {
     finished.value = true
     emit('finished', { score: score.value, total: total.value })
+  }
+}
+
+function revealAnswer() {
+  revealed.value = true
+}
+
+function markRecall(knewIt) {
+  if (answered.value) return
+  answered.value = true
+  if (knewIt) {
+    score.value++
+    streak.value++
+    if (streak.value > bestStreak.value) bestStreak.value = streak.value
+    playHorn()
+  } else {
+    streak.value = 0
   }
 }
 
@@ -153,7 +179,44 @@ const pct = computed(() => (total.value ? Math.round((score.value / total.value)
             {{ currentQuestion.question }}
           </p>
 
-          <div class="space-y-2.5 mb-4">
+          <!-- Pitanja tipa „nabroji / objasni“ – bez lažnih odgovora -->
+          <template v-if="isRecall">
+            <button
+              v-if="!revealed"
+              type="button"
+              class="w-full py-3.5 rounded-xl border border-cyan-500/40 bg-cyan-500/10 text-cyan-200 font-medium text-sm mb-4"
+              @click="revealAnswer"
+            >
+              Prikaži odgovor
+            </button>
+
+            <div
+              v-if="revealed"
+              class="mb-4 p-4 rounded-xl bg-emerald-950/40 border border-emerald-500/30"
+            >
+              <p class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-2">Odgovor</p>
+              <p class="text-sm text-emerald-100/90 leading-relaxed whitespace-pre-wrap">{{ currentQuestion.explanation }}</p>
+            </div>
+
+            <div v-if="revealed && !answered" class="grid grid-cols-2 gap-3 mb-4">
+              <button
+                type="button"
+                class="py-3 rounded-xl bg-red-900/40 border border-red-500/50 text-red-200 font-medium text-sm"
+                @click="markRecall(false)"
+              >
+                Treba ponoviti
+              </button>
+              <button
+                type="button"
+                class="py-3 rounded-xl bg-emerald-900/40 border border-emerald-500/50 text-emerald-200 font-medium text-sm"
+                @click="markRecall(true)"
+              >
+                Znao sam ✓
+              </button>
+            </div>
+          </template>
+
+          <div v-else class="space-y-2.5 mb-4">
             <button
               v-for="(option, index) in currentQuestion.options"
               :key="index"
@@ -173,9 +236,9 @@ const pct = computed(() => (total.value ? Math.round((score.value / total.value)
             </button>
           </div>
 
-          <div v-if="answered" class="mb-4 p-4 rounded-xl bg-slate-800/80 border border-cyan-500/30">
+          <div v-if="answered && !isRecall" class="mb-4 p-4 rounded-xl bg-slate-800/80 border border-cyan-500/30">
             <p class="text-xs font-semibold text-cyan-400 uppercase tracking-wider mb-2">Objašnjenje</p>
-            <p class="text-sm text-slate-300 leading-relaxed">{{ currentQuestion.explanation }}</p>
+            <p class="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{{ currentQuestion.explanation }}</p>
           </div>
 
           <button v-if="answered" type="button" class="btn-primary w-full" @click="nextQuestion">

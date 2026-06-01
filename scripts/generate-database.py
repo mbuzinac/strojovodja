@@ -22,6 +22,13 @@ GENERIC_WRONG = [
     'Odnosi se samo na jednokolosiječne pruge',
 ]
 
+RECALL_HINTS = (
+    'nabroji', 'navedi', 'navedite', 'objasni', 'objasnite', 'opiši', 'opisati',
+    'na koliko načina', 'koliko i kakve', 'koje vrste', 'koje su vrste', 'kakve vrste',
+    'postupak', 'princip rada', 'gdje se nalaze', 'gdje se nalazi', 'što sve',
+    'kako se ', 'kako radi', 'kako je izveden', 'kako je izvedeno',
+)
+
 CAT_KEYWORDS = {
     'osnovni-pojmovi': [
         'kolodvor', 'kolosijek', 'pruga', 'pružn', 'stajalište', 'rasputnica',
@@ -579,6 +586,18 @@ def extract_exam_questions(text):
     def is_bullet_question(raw, stripped):
         return bool(re.match(r'^\s*[\u2022\uf0b7\u00b7•]\s+\S', raw))
 
+    def looks_like_answer_line(content):
+        if re.match(r'^[-–—]', content):
+            return True
+        if re.match(r'^[A-ZČĆŽŠĐ][A-ZČĆŽŠĐ0-9\s\-–—]{3,}', content):
+            return True
+        if re.match(r'^\d+[-–]', content):
+            return True
+        return False
+
+    def question_complete():
+        return '?' in current.get('question', '')
+
     def start_question(num, rest):
         nonlocal current, bullet_counter
         save()
@@ -616,14 +635,17 @@ def extract_exam_questions(text):
                 'options': current['options'][:4],
             })
         elif current.get('answer_lines'):
-            ans = clean_md(' '.join(current['answer_lines']))
-            if len(ans) > 0:
-                questions.append({
-                    'num': current['num'],
-                    'question': q if q.endswith('?') else (q + '?' if '?' not in q else q),
-                    'answer': ans,
-                    'options': None,
-                })
+            lines = [clean_md(l) for l in current['answer_lines'] if clean_md(l)]
+            if not lines:
+                current = None
+                return
+            ans = '\n'.join(lines) if len(lines) > 1 else lines[0]
+            questions.append({
+                'num': current['num'],
+                'question': q if q.endswith('?') else (q + '?' if '?' not in q else q),
+                'answer': ans,
+                'options': None,
+            })
         current = None
 
     def append_dash_answer(raw, stripped):
@@ -684,7 +706,10 @@ def extract_exam_questions(text):
             continue
 
         if indent >= 4:
-            if current['state'] == 'question':
+            if current['state'] == 'question' and (question_complete() or looks_like_answer_line(content)):
+                current['answer_lines'].append(content)
+                current['state'] = 'answer'
+            elif current['state'] == 'question':
                 current['question'] += ' ' + content
             elif current['state'] == 'options' and current['options']:
                 current['options'][-1] += ' ' + content
@@ -737,6 +762,21 @@ def clean_answer(text):
     return text
 
 
+def format_full_answer(text):
+    return re.sub(r'[ \t]+', ' ', text).strip()
+
+
+def is_recall_question(question, answer):
+    ql = question.lower()
+    if any(h in ql for h in RECALL_HINTS):
+        return True
+    if len(answer) > 90 or answer.count('\n') >= 1:
+        return True
+    if re.search(r'\b(INDIREKTNA|DIREKTNA|DOPUNSKA|PARKIRNA)\b', answer, re.I):
+        return True
+    return False
+
+
 def pick_distractors(correct, pool, count=3):
     correct_n = correct.strip().lower()
     candidates = []
@@ -774,7 +814,20 @@ def make_exam_question(q, answer_pool):
             'type': 'exam',
         }
 
-    correct = clean_answer(q['answer'])
+    full = format_full_answer(q['answer'])
+    if len(full) < 3:
+        return None
+
+    if is_recall_question(q['question'], full):
+        return {
+            'question': q['question'],
+            'options': None,
+            'correctIndex': 0,
+            'explanation': full,
+            'type': 'recall',
+        }
+
+    correct = clean_answer(full)
     if len(correct) < 3:
         return None
     distractors = pick_distractors(correct, answer_pool, 3)
@@ -784,7 +837,7 @@ def make_exam_question(q, answer_pool):
         'question': q['question'],
         'options': opts,
         'correctIndex': opts.index(correct),
-        'explanation': correct,
+        'explanation': full,
         'type': 'exam',
     }
 
