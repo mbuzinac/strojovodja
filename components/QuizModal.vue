@@ -8,6 +8,9 @@ const props = defineProps({
 const emit = defineEmits(['close', 'finished'])
 
 const { recordQuiz } = useProgress()
+const assetPath = useAssetPath()
+
+const currentQuestionImage = computed(() => assetPath(currentQuestion.value?.image))
 
 const currentIndex = ref(0)
 const selectedIndex = ref(null)
@@ -30,7 +33,7 @@ const typeBadge = computed(() => {
 
 function playHorn() {
   try {
-    const audio = new Audio('/sounds/locomotive-horn.mp3')
+    const audio = new Audio(assetPath('/sounds/locomotive-horn.mp3'))
     audio.volume = 0.7
     audio.play().catch(() => {})
   } catch { /* */ }
@@ -139,7 +142,7 @@ const pct = computed(() => (total.value ? Math.round((score.value / total.value)
           <div v-if="currentQuestion.image" class="mb-4 flex justify-center">
             <div class="rounded-xl overflow-hidden border border-slate-700 bg-black/50 p-2 max-w-[200px]">
               <img
-                :src="currentQuestion.image"
+                :src="currentQuestionImage"
                 alt="Signal"
                 class="w-full h-auto object-contain max-h-40"
               />

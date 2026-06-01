@@ -14,6 +14,9 @@ const props = defineProps({
   },
 })
 
+const assetPath = useAssetPath()
+const imageSrc = computed(() => assetPath(props.visual.image))
+
 const colorMap = {
   red: { on: 'bg-red-500 shadow-[0_0_16px_rgba(239,68,68,0.9)]', off: 'bg-red-950/40 border-red-900' },
   green: { on: 'bg-green-500 shadow-[0_0_16px_rgba(34,197,94,0.9)]', off: 'bg-green-950/40 border-green-900' },
@@ -71,7 +74,7 @@ const badgeClass = (b) => {
     <div v-else-if="visual.image" class="w-full max-w-[220px]">
       <div class="relative rounded-xl overflow-hidden bg-black/60 border border-slate-700/80 shadow-lg">
         <img
-          :src="visual.image"
+          :src="imageSrc"
           :alt="alt"
           class="w-full h-auto object-contain max-h-52 mx-auto"
           loading="lazy"

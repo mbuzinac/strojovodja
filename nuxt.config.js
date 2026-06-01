@@ -20,8 +20,8 @@ export default defineNuxtConfig({
         { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
       ],
       link: [
-        { rel: 'icon', type: 'image/svg+xml', href: '/icon.svg' },
-        { rel: 'apple-touch-icon', href: '/icon.svg' },
+        { rel: 'icon', type: 'image/svg+xml', href: `${baseURL}icon.svg`.replace(/([^:]\/)\/+/g, '$1') },
+        { rel: 'apple-touch-icon', href: `${baseURL}icon.svg`.replace(/([^:]\/)\/+/g, '$1') },
       ],
     },
   },
@@ -43,12 +43,12 @@ export default defineNuxtConfig({
       lang: 'hr',
       start_url: baseURL,
       icons: [
-        { src: '/icon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
+        { src: `${baseURL}icon.svg`.replace(/([^:]\/)\/+/g, '$1'), sizes: 'any', type: 'image/svg+xml', purpose: 'any maskable' },
       ],
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,svg,png,jpg,jpeg,webp,ico,mp3,woff2}'],
-      navigateFallback: '/',
+      navigateFallback: baseURL,
       runtimeCaching: [
         {
           urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

@@ -6,6 +6,8 @@ const props = defineProps({
   },
 })
 
+const assetPath = useAssetPath()
+
 const blocks = computed(() => {
   const raw = props.lesson?.blocks?.length
     ? props.lesson.blocks
@@ -43,7 +45,7 @@ const hasInlineImages = computed(() => blocks.value.some(b => b.type === 'item' 
       class="flex justify-center"
     >
       <img
-        :src="lesson.image"
+        :src="assetPath(lesson.image)"
         :alt="lesson.title"
         class="max-h-48 rounded-lg border border-slate-700 bg-black/40 object-contain"
         loading="lazy"
@@ -68,7 +70,7 @@ const hasInlineImages = computed(() => blocks.value.some(b => b.type === 'item' 
         </p>
         <img
           v-if="block.image"
-          :src="block.image"
+          :src="assetPath(block.image)"
           :alt="block.text"
           class="max-h-44 w-full rounded-lg border border-slate-700 bg-black/50 object-contain mx-auto"
           loading="lazy"
@@ -94,7 +96,7 @@ const hasInlineImages = computed(() => blocks.value.some(b => b.type === 'item' 
         class="flex justify-center"
       >
         <img
-          :src="block.src"
+          :src="assetPath(block.src)"
           :alt="lesson.title"
           class="max-h-44 rounded-lg border border-slate-700 bg-black/50 object-contain"
           loading="lazy"
