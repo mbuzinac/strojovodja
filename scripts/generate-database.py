@@ -570,9 +570,30 @@ def extract_exam_questions(text):
     lines = text.split('\n')
     questions = []
     current = None
+    bullet_counter = 9000
 
     def leading(raw):
         return len(raw) - len(raw.lstrip(' \t'))
+
+    def is_numbered_question(stripped):
+        return bool(re.match(r'^\d{1,3}\.\s*\S', stripped))
+
+    def is_bullet_question(raw, stripped):
+        return bool(re.match(r'^\s*[\u2022\uf0b7\u00b7•]\s+\S', raw))
+
+    def start_question(num, rest):
+        nonlocal current, bullet_counter
+        save()
+        if num is None:
+            bullet_counter += 1
+            num = bullet_counter
+        current = {
+            'num': num,
+            'question': rest.strip(),
+            'answer_lines': [],
+            'options': [],
+            'state': 'question',
+        }
 
     def save():
         nonlocal current
@@ -583,6 +604,9 @@ def extract_exam_questions(text):
             current = None
             return
         if q.lower().startswith('skripta') or 'pripremu redovne' in q.lower():
+            current = None
+            return
+        if q.lower().startswith('općenito o ') and '?' not in q:
             current = None
             return
 
@@ -604,6 +628,18 @@ def extract_exam_questions(text):
                 })
         current = None
 
+    def append_dash_answer(raw, stripped):
+        m = re.match(r'^\s*[-–—\uf02d]\s*(.+)$', raw)
+        if m:
+            current['answer_lines'].append(clean_md(m.group(1)))
+            current['state'] = 'answer'
+            return True
+        if re.match(r'^-\S', stripped):
+            current['answer_lines'].append(clean_md(stripped[1:].strip()))
+            current['state'] = 'answer'
+            return True
+        return False
+
     for line in lines:
         raw = line.rstrip('\n\r')
         stripped = raw.strip()
@@ -615,16 +651,12 @@ def extract_exam_questions(text):
 
         qm = re.match(r'^(\d{1,3})\.\s*(.*)$', stripped)
         if qm:
-            save()
-            num = int(qm.group(1))
-            rest = qm.group(2).strip()
-            current = {
-                'num': num,
-                'question': rest,
-                'answer_lines': [],
-                'options': [],
-                'state': 'question',
-            }
+            start_question(int(qm.group(1)), qm.group(2))
+            continue
+
+        bq = re.match(r'^\s*[\u2022\uf0b7\u00b7•]\s*(.+)', raw)
+        if bq:
+            start_question(None, bq.group(1))
             continue
 
         if not current:
@@ -634,6 +666,9 @@ def extract_exam_questions(text):
         if opt:
             current['options'].append(clean_md(opt.group(2)))
             current['state'] = 'options'
+            continue
+
+        if append_dash_answer(raw, stripped):
             continue
 
         bullet = re.match(r'^\s+-+\s*(.+)', raw)
@@ -661,6 +696,15 @@ def extract_exam_questions(text):
 
         if current['state'] == 'options' and current['options']:
             current['options'][-1] += ' ' + content
+            continue
+
+        if current['state'] == 'question' and not is_numbered_question(stripped) and not is_bullet_question(raw, stripped):
+            current['answer_lines'].append(content)
+            current['state'] = 'answer'
+            continue
+
+        if current['state'] == 'answer':
+            current['answer_lines'].append(content)
 
     save()
     return questions
@@ -895,12 +939,12 @@ def write_database(railway_data, exam_bank, out_path):
     lines.append('}')
     lines.append('')
     lines.append('export function searchExamQuestions(query, categoryId = null) {')
-    lines.append('  const q = normalizeSearch(query);')
-    lines.append('  if (!q || q.length < 2) return [];')
+    lines.append('  const terms = normalizeSearch(query).split(/\\s+/).filter(t => t.length >= 2);')
+    lines.append('  if (!terms.length) return [];')
     lines.append('  return examBank.filter(item => {')
     lines.append('    if (categoryId && item.categoryId !== categoryId) return false;')
     lines.append('    const hay = normalizeSearch(`${item.num} ${item.question} ${item.answer}`);')
-    lines.append('    return hay.includes(q);')
+    lines.append('    return terms.every(term => hay.includes(term));')
     lines.append('  });')
     lines.append('}')
     with open(out_path, 'w', encoding='utf-8') as f:
