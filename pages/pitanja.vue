@@ -13,8 +13,13 @@ const categories = computed(() => [
 
 const results = computed(() => {
   const q = query.value.trim()
-  if (q.length < 2) return examBank.slice(0, 50)
-  return searchExamQuestions(q, categoryFilter.value || null)
+  if (q.length >= 2) {
+    return searchExamQuestions(q, categoryFilter.value || null)
+  }
+  if (categoryFilter.value) {
+    return examBank.filter(item => item.categoryId === categoryFilter.value)
+  }
+  return examBank
 })
 
 const resultCount = computed(() => results.value.length)
@@ -63,7 +68,7 @@ const resultCount = computed(() => results.value.length)
     <main class="max-w-4xl mx-auto px-4 py-6 space-y-3">
       <p class="text-xs text-slate-500">
         <template v-if="query.trim().length < 2">
-          Prvih 50 pitanja — upiši najmanje 2 znaka za pretragu
+          {{ resultCount }} pitanja{{ categoryFilter ? ' u odabranoj kategoriji' : '' }} — upiši pojam za pretragu
         </template>
         <template v-else>
           {{ resultCount }} rezultata za „{{ query.trim() }}“
