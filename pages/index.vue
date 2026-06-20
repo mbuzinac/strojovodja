@@ -48,6 +48,28 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
     </header>
 
     <main class="max-w-4xl mx-auto px-4 py-8 pb-16">
+      <NuxtLink
+        to="/pravilnik"
+        class="group relative block overflow-hidden rounded-2xl border border-cyan-500/40 bg-gradient-to-br from-cyan-950/60 via-slate-900 to-emerald-950/40 p-5 mb-8 hover:border-cyan-400/60 transition-all"
+      >
+        <div class="absolute -right-6 -top-6 text-[7rem] opacity-10 group-hover:opacity-20 transition-opacity select-none">📕</div>
+        <div class="relative flex items-center gap-4">
+          <span class="text-4xl shrink-0 group-hover:scale-110 transition-transform">📕</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1">
+              <h2 class="text-lg font-bold text-white group-hover:text-cyan-300 transition-colors">Signalni pravilnik</h2>
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">NAJVAŽNIJE</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              Svi signalni znakovi i oznake sa slikama – pregledno po kategorijama, s brzom pretragom.
+            </p>
+          </div>
+          <svg class="w-5 h-5 text-cyan-400 shrink-0 ml-auto group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </NuxtLink>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
         <NuxtLink
           to="/pitanja"
