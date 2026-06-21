@@ -91,6 +91,16 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
             <p class="text-xs text-slate-500">{{ totalSignals }} signala na jednom mjestu</p>
           </div>
         </NuxtLink>
+        <NuxtLink
+          to="/oznake"
+          class="card-dark p-4 hover:border-violet-500/40 transition-all group flex items-center gap-4 sm:col-span-2"
+        >
+          <span class="text-3xl group-hover:scale-110 transition-transform">🔢</span>
+          <div>
+            <p class="font-semibold text-white group-hover:text-violet-300">Oznake vučnih vozila</p>
+            <p class="text-xs text-slate-500">12-znamenkasta UIC oznaka i kontrolna znamenka</p>
+          </div>
+        </NuxtLink>
       </div>
 
       <h2 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-5">
@@ -133,6 +143,11 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
       <p class="text-center text-xs text-slate-600 mt-10">
         Izvor: Skripta Strojovođe13253 · Ispitna pitanja za periodične ispite
       </p>
+      <div class="text-center mt-3">
+        <NuxtLink to="/priprema" class="text-[11px] text-slate-700 hover:text-slate-500 transition-colors">
+          Priprema za ispit
+        </NuxtLink>
+      </div>
     </main>
   </div>
 </template>
