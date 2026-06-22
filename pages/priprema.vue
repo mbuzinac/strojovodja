@@ -11,9 +11,34 @@ useHead({ title: 'Priprema za ispit – Strojovođa' })
 const query = ref('')
 const activeSection = ref('')
 const revealAll = ref(false)
+const shuffleSeed = ref(0)
 
 const isSearching = computed(() => normalizePriprema(query.value.trim()).length >= 2)
 const results = computed(() => searchPriprema(query.value, activeSection.value || null))
+
+function mulberry32(a) {
+  return function () {
+    a |= 0
+    a = (a + 0x6d2b79f5) | 0
+    let t = Math.imul(a ^ (a >>> 15), 1 | a)
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296
+  }
+}
+
+function shuffled(items, salt) {
+  const rng = mulberry32(shuffleSeed.value + salt)
+  const arr = items.slice()
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1))
+    ;[arr[i], arr[j]] = [arr[j], arr[i]]
+  }
+  return arr
+}
+
+function maybeShuffle(items, salt) {
+  return shuffleSeed.value ? shuffled(items, salt) : items
+}
 
 const visibleSections = computed(() => {
   if (isSearching.value) {
@@ -27,10 +52,20 @@ const visibleSections = computed(() => {
     }
     return [...map.values()]
   }
-  return activeSection.value
+  const base = activeSection.value
     ? pripremaSections.filter(s => s.id === activeSection.value)
     : pripremaSections
+  return base.map((s, idx) => ({ ...s, items: maybeShuffle(s.items, idx + 1) }))
 })
+
+function reshuffle() {
+  shuffleSeed.value = Math.floor(Math.random() * 1e9) + 1
+  if (process.client) window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+function resetOrder() {
+  shuffleSeed.value = 0
+}
 
 function selectSection(id) {
   activeSection.value = id
@@ -58,16 +93,37 @@ function selectSection(id) {
             </h1>
             <p class="text-xs text-slate-500">{{ pripremaItems.length }} pitanja s odgovorima</p>
           </div>
-          <button
-            type="button"
-            class="shrink-0 px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
-            :class="revealAll
-              ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
-              : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-white'"
-            @click="revealAll = !revealAll"
-          >
-            {{ revealAll ? 'Sakrij odgovore' : 'Prikaži sve' }}
-          </button>
+          <div class="shrink-0 flex items-center gap-2">
+            <button
+              type="button"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+              :class="shuffleSeed
+                ? 'bg-violet-500/15 text-violet-300 border-violet-500/40'
+                : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-white'"
+              :title="shuffleSeed ? 'Ponovno izmiksaj' : 'Izmiksaj redoslijed'"
+              @click="reshuffle"
+            >
+              🔀 Izmiksaj
+            </button>
+            <button
+              v-if="shuffleSeed"
+              type="button"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium border bg-slate-900 text-slate-400 border-slate-700 hover:text-white transition-colors"
+              @click="resetOrder"
+            >
+              Po redu
+            </button>
+            <button
+              type="button"
+              class="px-3 py-1.5 rounded-lg text-xs font-medium border transition-colors"
+              :class="revealAll
+                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/40'
+                : 'bg-slate-900 text-slate-400 border-slate-700 hover:text-white'"
+              @click="revealAll = !revealAll"
+            >
+              {{ revealAll ? 'Sakrij odgovore' : 'Prikaži sve' }}
+            </button>
+          </div>
         </div>
 
         <div class="relative mb-3">

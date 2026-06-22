@@ -54,6 +54,18 @@ CURATED_IMG = {
     "3.3": "/priprema/vagon-cisterna.png",
 }
 
+# Rekonstrukcija pitanja iz DIO 1 koja su na fotografiji bila odsječena/nejasna.
+CURATED_DIO1 = {
+    29: {
+        "question": "Objasniti signalni znak VOZITI OGRANIČENOM BRZINOM (pokazivač brzine).",
+        "answer": "Svjetleća brojka na crnoj četverokutnoj ploči pokazuje desetinu vrijednosti brzine u km/h kojom se od tog signala smije voziti dalje – znamenku treba pomnožiti s 10 da se dobije dopuštena brzina (npr. „6\" znači 60 km/h).\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)",
+    },
+    30: {
+        "question": "Gdje se ugrađuju pokazivači brzine?",
+        "answer": "Ugrađuju se uz glavne signale (ulazne, izlazne i prostorne) na kojima treba signalizirati brzinu kojom se smije voziti dalje, na propisanoj udaljenosti ispred mjesta na koje se ograničenje odnosi.\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)",
+    },
+}
+
 # Odgovori za otvorena pitanja DIO 3 (izvučeno iz gradiva aplikacije).
 CURATED_QA = {
     "3.1": "Primjer UIC oznake 92 78 2062 001-5:\n"
@@ -171,9 +183,15 @@ class Parser:
                 "explanation": expl, "source": "aplikacija" if key in CURATED_MC else "",
             })
         else:
+            answer = "\n".join(answer_parts).strip()
+            if self.dio == 1 and num in CURATED_DIO1:
+                ov = CURATED_DIO1[num]
+                question = ov.get("question", question)
+                answer = ov.get("answer", answer)
+                image = ov.get("image", image)
             self.emit({
                 "type": "qa", "dio": self.dio, "num": num, "question": question,
-                "answer": "\n".join(answer_parts).strip(), "image": image, "source": "",
+                "answer": answer, "image": image, "source": "",
             })
         return i
 

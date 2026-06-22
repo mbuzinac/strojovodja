@@ -320,23 +320,23 @@ export const pripremaSections = [
         "type": "qa",
         "dio": 1,
         "num": 29,
-        "question": "Objasniti signalni znak VOZITI O... (naslov pitanja djelomično odsječen na fotografiji)",
-        "answer": "Svjetleća brojka na crnoj četverokutnoj ploči ... dobila dozvoljena brzina. (rečenica je na fotografiji djelomično nejasna/odsječena na rubu stranice)",
+        "question": "Objasniti signalni znak VOZITI OGRANIČENOM BRZINOM (pokazivač brzine).",
+        "answer": "Svjetleća brojka na crnoj četverokutnoj ploči pokazuje desetinu vrijednosti brzine u km/h kojom se od tog signala smije voziti dalje – znamenku treba pomnožiti s 10 da se dobije dopuštena brzina (npr. „6\" znači 60 km/h).\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)",
         "image": null,
         "source": "",
         "sectionId": "signali",
-        "search": "Objasniti signalni znak VOZITI O... (naslov pitanja djelomično odsječen na fotografiji) Svjetleća brojka na crnoj četverokutnoj ploči ... dobila dozvoljena brzina. (rečenica je na fotografiji djelomično nejasna/odsječena na rubu stranice)"
+        "search": "Objasniti signalni znak VOZITI OGRANIČENOM BRZINOM (pokazivač brzine). Svjetleća brojka na crnoj četverokutnoj ploči pokazuje desetinu vrijednosti brzine u km/h kojom se od tog signala smije voziti dalje – znamenku treba pomnožiti s 10 da se dobije dopuštena brzina (npr. „6\" znači 60 km/h).\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)"
       },
       {
         "type": "qa",
         "dio": 1,
         "num": 30,
-        "question": "Gdje se ugrađuje...?",
-        "answer": "• na ulaz... (tekst odsječen na fotografiji)\n• na ula... (tekst odsječen na fotografiji)\n• km... (tekst odsječen na fotografiji)",
+        "question": "Gdje se ugrađuju pokazivači brzine?",
+        "answer": "Ugrađuju se uz glavne signale (ulazne, izlazne i prostorne) na kojima treba signalizirati brzinu kojom se smije voziti dalje, na propisanoj udaljenosti ispred mjesta na koje se ograničenje odnosi.\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)",
         "image": null,
         "source": "",
         "sectionId": "signali",
-        "search": "Gdje se ugrađuje...? • na ulaz... (tekst odsječen na fotografiji)\n• na ula... (tekst odsječen na fotografiji)\n• km... (tekst odsječen na fotografiji)"
+        "search": "Gdje se ugrađuju pokazivači brzine? Ugrađuju se uz glavne signale (ulazne, izlazne i prostorne) na kojima treba signalizirati brzinu kojom se smije voziti dalje, na propisanoj udaljenosti ispred mjesta na koje se ograničenje odnosi.\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)"
       },
       {
         "type": "qa",
@@ -1110,23 +1110,23 @@ export const pripremaItems = [
     "type": "qa",
     "dio": 1,
     "num": 29,
-    "question": "Objasniti signalni znak VOZITI O... (naslov pitanja djelomično odsječen na fotografiji)",
-    "answer": "Svjetleća brojka na crnoj četverokutnoj ploči ... dobila dozvoljena brzina. (rečenica je na fotografiji djelomično nejasna/odsječena na rubu stranice)",
+    "question": "Objasniti signalni znak VOZITI OGRANIČENOM BRZINOM (pokazivač brzine).",
+    "answer": "Svjetleća brojka na crnoj četverokutnoj ploči pokazuje desetinu vrijednosti brzine u km/h kojom se od tog signala smije voziti dalje – znamenku treba pomnožiti s 10 da se dobije dopuštena brzina (npr. „6\" znači 60 km/h).\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)",
     "image": null,
     "source": "",
     "sectionId": "signali",
-    "search": "Objasniti signalni znak VOZITI O... (naslov pitanja djelomično odsječen na fotografiji) Svjetleća brojka na crnoj četverokutnoj ploči ... dobila dozvoljena brzina. (rečenica je na fotografiji djelomično nejasna/odsječena na rubu stranice)"
+    "search": "Objasniti signalni znak VOZITI OGRANIČENOM BRZINOM (pokazivač brzine). Svjetleća brojka na crnoj četverokutnoj ploči pokazuje desetinu vrijednosti brzine u km/h kojom se od tog signala smije voziti dalje – znamenku treba pomnožiti s 10 da se dobije dopuštena brzina (npr. „6\" znači 60 km/h).\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)"
   },
   {
     "type": "qa",
     "dio": 1,
     "num": 30,
-    "question": "Gdje se ugrađuje...?",
-    "answer": "• na ulaz... (tekst odsječen na fotografiji)\n• na ula... (tekst odsječen na fotografiji)\n• km... (tekst odsječen na fotografiji)",
+    "question": "Gdje se ugrađuju pokazivači brzine?",
+    "answer": "Ugrađuju se uz glavne signale (ulazne, izlazne i prostorne) na kojima treba signalizirati brzinu kojom se smije voziti dalje, na propisanoj udaljenosti ispred mjesta na koje se ograničenje odnosi.\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)",
     "image": null,
     "source": "",
     "sectionId": "signali",
-    "search": "Gdje se ugrađuje...? • na ulaz... (tekst odsječen na fotografiji)\n• na ula... (tekst odsječen na fotografiji)\n• km... (tekst odsječen na fotografiji)"
+    "search": "Gdje se ugrađuju pokazivači brzine? Ugrađuju se uz glavne signale (ulazne, izlazne i prostorne) na kojima treba signalizirati brzinu kojom se smije voziti dalje, na propisanoj udaljenosti ispred mjesta na koje se ograničenje odnosi.\n(Rekonstruirano – izvorni tekst bio je odsječen na fotografiji.)"
   },
   {
     "type": "qa",
