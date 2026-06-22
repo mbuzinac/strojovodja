@@ -5,6 +5,11 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-01-01',
   devtools: { enabled: true },
 
+  // Uklanja bezopasno "Failed to resolve import #app-manifest" upozorenje u dev modu
+  experimental: {
+    appManifest: false,
+  },
+
   modules: ['@nuxtjs/tailwindcss', '@vite-pwa/nuxt'],
 
   app: {
@@ -65,7 +70,9 @@ export default defineNuxtConfig({
       installPrompt: true,
     },
     devOptions: {
-      enabled: true,
+      // Service worker se ne generira u dev modu (sprječava keširanje stare verzije
+      // tijekom razvoja); PWA i dalje radi u produkcijskom buildu.
+      enabled: false,
       type: 'module',
       suppressWarnings: true,
     },

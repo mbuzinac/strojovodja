@@ -7,6 +7,7 @@ const props = defineProps({
 const assetPath = useAssetPath()
 const open = ref(false)
 const picked = ref(null)
+const drawOpen = ref(false)
 
 const show = computed(() => open.value || props.revealAll)
 const letters = ['a', 'b', 'c', 'd', 'e', 'f']
@@ -37,15 +38,19 @@ function onImgError(e) {
         </h3>
       </div>
 
-      <!-- slika (DIO 1) -->
-      <div v-if="item.image" class="mt-3 flex justify-center">
-        <img
-          :src="assetPath(item.image)"
-          :alt="item.question"
-          loading="lazy"
-          class="max-h-40 object-contain rounded-lg border border-slate-700 bg-white/5 p-1"
-          @error="onImgError"
-        />
+      <!-- ploča za crtanje (signal se na ispitu crta) -->
+      <div v-if="item.image" class="mt-3">
+        <button
+          type="button"
+          class="inline-flex items-center gap-1.5 text-xs font-medium text-slate-300 hover:text-white"
+          @click="drawOpen = !drawOpen"
+        >
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          {{ drawOpen ? 'Sakrij ploču' : 'Nacrtaj signal' }}
+        </button>
+        <DrawCanvas v-if="drawOpen" class="mt-2" />
       </div>
 
       <!-- VIŠESTRUKI IZBOR -->
@@ -102,11 +107,20 @@ function onImgError(e) {
         </button>
 
         <div v-else class="rounded-lg border border-slate-700/60 bg-slate-900/40 px-3 py-2.5">
+          <div v-if="item.image" class="mb-2.5 flex justify-center">
+            <img
+              :src="assetPath(item.image)"
+              :alt="item.question"
+              loading="lazy"
+              class="max-h-44 object-contain rounded-lg border border-slate-700 bg-white/5 p-1"
+              @error="onImgError"
+            />
+          </div>
           <div class="flex items-center gap-2 mb-1">
             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-500">Odgovor</span>
             <span v-if="item.source" class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/30 leading-none">IZ GRADIVA</span>
           </div>
-          <p class="text-xs text-slate-200 leading-relaxed whitespace-pre-line break-words">{{ item.answer }}</p>
+          <p v-if="item.answer" class="text-xs text-slate-200 leading-relaxed whitespace-pre-line break-words">{{ item.answer }}</p>
         </div>
       </div>
     </div>
