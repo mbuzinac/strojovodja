@@ -70,6 +70,28 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
         </div>
       </NuxtLink>
 
+      <NuxtLink
+        to="/agencija"
+        class="group relative block overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-950/50 via-slate-900 to-rose-950/30 p-5 mb-6 hover:border-amber-400/60 transition-all"
+      >
+        <div class="absolute -right-4 -top-4 text-[6rem] opacity-10 group-hover:opacity-20 transition-opacity select-none">🎓</div>
+        <div class="relative flex items-center gap-4">
+          <span class="text-4xl shrink-0 group-hover:scale-110 transition-transform">🎓</span>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <h2 class="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">Agencijski test</h2>
+              <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">USMENI</span>
+            </div>
+            <p class="text-sm text-slate-300 leading-relaxed">
+              250+ pitanja + svi signali iz pravilnika – reci odgovor, pa klikni „Prikaži“.
+            </p>
+          </div>
+          <svg class="w-5 h-5 text-amber-400 shrink-0 ml-auto group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </div>
+      </NuxtLink>
+
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-8">
         <NuxtLink
           to="/pitanja"
@@ -93,12 +115,22 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
         </NuxtLink>
         <NuxtLink
           to="/oznake"
-          class="card-dark p-4 hover:border-violet-500/40 transition-all group flex items-center gap-4 sm:col-span-2"
+          class="card-dark p-4 hover:border-violet-500/40 transition-all group flex items-center gap-4"
         >
           <span class="text-3xl group-hover:scale-110 transition-transform">🔢</span>
           <div>
             <p class="font-semibold text-white group-hover:text-violet-300">Oznake vučnih vozila</p>
             <p class="text-xs text-slate-500">12-znamenkasta UIC oznaka i kontrolna znamenka</p>
+          </div>
+        </NuxtLink>
+        <NuxtLink
+          to="/igra"
+          class="card-dark p-4 hover:border-amber-500/40 transition-all group flex items-center gap-4 border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-slate-900"
+        >
+          <span class="text-3xl group-hover:scale-110 transition-transform">🎮</span>
+          <div>
+            <p class="font-semibold text-white group-hover:text-amber-300">Play & Fun</p>
+            <p class="text-xs text-slate-500">Vozi lokomotivu, poštuj signale, uči uživo</p>
           </div>
         </NuxtLink>
       </div>
