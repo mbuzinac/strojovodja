@@ -9,7 +9,7 @@ import {
 useHead({ title: 'Agencijski test – Strojovođa' })
 
 const mode = ref('kartica') // 'kartica' | 'lista'
-const activeCat = ref('pravilnik')
+const activeCat = ref('signali-img')
 const seed = ref(0)
 const index = ref(0)
 const revealed = ref(false)
@@ -22,7 +22,7 @@ function onImgError(e) {
   if (e?.target) e.target.style.visibility = 'hidden'
 }
 
-const STORAGE = 'agencija-test-progress'
+const STORAGE = 'agencija-test-progress-v2'
 
 onMounted(() => {
   try {
@@ -237,23 +237,24 @@ function jumpToWeak() {
           </div>
 
           <div class="p-5 sm:p-7">
-            <p class="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-2">
-              Pitanje · zamisli usmeni odgovor
+            <p class="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-1">
+              {{ current.kind === 'signal' ? 'Signal · reci što vidiš i što radiš' : 'Pitanje · usmeni odgovor' }}
             </p>
+            <p v-if="current.group" class="text-[11px] text-slate-500 mb-2">{{ current.group }}</p>
             <h2 class="text-lg sm:text-xl font-semibold text-white leading-snug whitespace-pre-line">
               {{ current.question }}
             </h2>
 
             <div
               v-if="current.images?.length"
-              class="mt-5 flex flex-wrap justify-center gap-4 rounded-xl border border-slate-700 bg-slate-950 px-4 py-5"
+              class="mt-5 flex flex-wrap justify-center gap-4 rounded-xl border border-cyan-500/20 bg-slate-950 px-4 py-6"
             >
               <img
                 v-for="(src, i) in current.images"
                 :key="i"
                 :src="assetPath(src)"
-                :alt="current.question"
-                class="max-h-40 max-w-[180px] object-contain rounded-md bg-white/5 p-1.5"
+                :alt="current.name || current.question"
+                class="max-h-52 max-w-[220px] object-contain rounded-md bg-white/5 p-2"
                 @error="onImgError"
               />
             </div>

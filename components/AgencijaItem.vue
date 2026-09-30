@@ -39,21 +39,22 @@ function onImgError(e) {
           <h3 class="text-sm font-semibold text-white leading-snug whitespace-pre-line">
             {{ item.question }}
           </h3>
+          <p v-if="item.name" class="text-[11px] text-cyan-400/80 mt-1">„{{ item.name }}"</p>
         </div>
       </div>
 
-      <!-- Slike signala – vidljive i PRIJE odgovora (kao na usmenom) -->
+      <!-- Slike signala – vidljive PRIJE odgovora -->
       <div
         v-if="item.images?.length"
-        class="mt-3 flex flex-wrap justify-center gap-3 rounded-lg border border-slate-800 bg-slate-950/80 px-3 py-3"
+        class="mt-3 flex flex-wrap justify-center gap-3 rounded-lg border border-cyan-500/15 bg-slate-950/80 px-3 py-4"
       >
         <img
           v-for="(src, i) in item.images"
           :key="i"
           :src="assetPath(src)"
-          :alt="item.question"
+          :alt="item.name || item.question"
           loading="lazy"
-          class="max-h-28 max-w-[140px] object-contain rounded-md bg-white/5 p-1"
+          class="max-h-36 max-w-[160px] object-contain rounded-md bg-white/5 p-1.5"
           @error="onImgError"
         />
       </div>

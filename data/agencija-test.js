@@ -1,13 +1,17 @@
 /**
  * Banka pitanja za usmeni agencijski ispit (ASZ / dozvola).
- * Format: { id, cat, question, answer, images? }
+ * Prioritet: 1) signali sa slikom + potpuni odgovor  2) priprema  3) teorija
  */
 
 import { pravilnikCategories } from './signalni-pravilnik.js'
+import { pripremaItems } from './priprema-ispit.js'
+import { enrichSignal } from './agencija-signali-enrich.js'
 
 export const agencijaCats = [
-  { id: 'pravilnik', title: 'Svi signali (pravilnik)', icon: '📕' },
-  { id: 'signali', title: 'Signali (usmeno)', icon: '🚦' },
+  { id: 'signali-img', title: 'Signali · slika + značenje', icon: '🚦' },
+  { id: 'priprema-signali', title: 'Priprema · signali', icon: '📕' },
+  { id: 'priprema', title: 'Priprema · ostalo', icon: '📝' },
+  { id: 'signali', title: 'Teorija signala', icon: '💡' },
   { id: 'postupci', title: 'Postupci u vožnji', icon: '🚂' },
   { id: 'kocnice', title: 'Kočnice', icon: '🛑' },
   { id: 'skretnice', title: 'Skretnice i manevra', icon: '🔀' },
@@ -22,77 +26,90 @@ export const agencijaCats = [
   { id: 'oznake', title: 'Signalne oznake', icon: '📍' },
 ]
 
-/** Svi signali + definicije + Q&A iz docs/signalni_pravilnik.md */
-function buildPravilnikQuestions() {
+const SKIP_SIGNAL_NAMES = /^(postupak|u slučaju kvara|namijenjen)/i
+
+/** Jedna kartica po signalu: SLIKA → potpuni odgovor (značenje + što radiš) */
+function buildSignalImageQuestions() {
   const out = []
   let n = 0
 
   for (const cat of pravilnikCategories) {
     for (const it of cat.items) {
-      if (it.type === 'signal') {
-        n++
-        const images = (it.images || []).map(img => img.image).filter(Boolean)
-        const imgNotes = (it.images || [])
-          .map((img) => {
-            const bits = [img.label, img.desc].filter(Boolean)
-            return bits.length ? bits.join(' — ') : null
-          })
-          .filter(Boolean)
+      if (it.type !== 'signal') continue
+      if (SKIP_SIGNAL_NAMES.test(it.name || '')) continue
 
-        const group = it.group || cat.title
-        const desc = (it.description || '').trim()
+      const images = (it.images || []).map(img => img.image).filter(Boolean)
+      if (!images.length) continue
 
-        // 1) Slika → što znači?
-        out.push({
-          id: `pr-img-${n}`,
-          cat: 'pravilnik',
-          question: `Što signalizira ovaj signal?\n(${group})`,
-          answer: `${it.name}${desc ? `\n\n${desc}` : ''}${imgNotes.length ? `\n\n${imgNotes.join('\n')}` : ''}`,
-          images,
-          group,
+      n++
+      const imgNotes = (it.images || [])
+        .map((img) => {
+          const bits = [img.label, img.desc].filter(Boolean)
+          return bits.length ? `• ${bits.join(' — ')}` : null
         })
+        .filter(Boolean)
 
-        // 2) Naziv → kako izgleda / što znači?
-        out.push({
-          id: `pr-name-${n}`,
-          cat: 'pravilnik',
-          question: `Objasni signalni znak „${it.name}"${group ? ` (${group})` : ''}.`,
-          answer: `${desc || it.name}${imgNotes.length ? `\n\n${imgNotes.join('\n')}` : ''}`,
-          images,
-          group,
-        })
-      }
+      const group = it.group || cat.title
+      const desc = (it.description || '').trim()
 
-      if (it.type === 'definition') {
-        n++
-        out.push({
-          id: `pr-def-${n}`,
-          cat: 'pravilnik',
-          question: `Što je „${it.term}"?`,
-          answer: `${it.term} ${it.text || ''}${(it.description || '').trim() ? `\n\n${it.description.trim()}` : ''}`,
-          images: [],
-          group: it.group || cat.title,
-        })
-      }
-
-      if (it.type === 'qa') {
-        n++
-        out.push({
-          id: `pr-qa-${n}`,
-          cat: 'pravilnik',
-          question: it.question,
-          answer: it.answer,
-          images: [],
-          group: it.group || cat.title,
-        })
-      }
+      out.push({
+        id: `sig-${n}`,
+        cat: 'signali-img',
+        question: 'Što znači ovaj signal? Objasni izgled, značenje i što radiš.',
+        answer: enrichSignal(it.name, desc, imgNotes),
+        images,
+        group,
+        name: it.name,
+        kind: 'signal',
+      })
     }
   }
 
   return out
 }
 
-const pravilnikQuestions = buildPravilnikQuestions()
+/** Sva pitanja iz Priprema za ispit (signali odvojeno – imaju dobre odgovore + slike) */
+function buildPripremaQuestions() {
+  const signali = []
+  const ostalo = []
+  let n = 0
+
+  for (const it of pripremaItems) {
+    n++
+    const images = it.image ? [it.image] : []
+    let answer = it.answer || ''
+
+    if (it.type === 'mc' && Array.isArray(it.options)) {
+      const correct = it.options[it.correctIndex]
+      const letter = String.fromCharCode(97 + (it.correctIndex ?? 0))
+      answer = `Točno: ${letter}) ${correct}`
+      if (it.explanation) answer += `\n\n${it.explanation}`
+    }
+
+    if (!answer?.trim()) continue
+
+    const card = {
+      id: `prep-${it.sectionId || 'x'}-${it.num || n}`,
+      question: it.question,
+      answer: answer.trim(),
+      images,
+      group: it.sectionId === 'signali' ? 'Priprema · Dio 1 Signali' : (it.sectionId || 'Priprema'),
+      kind: images.length ? 'signal' : 'qa',
+      name: null,
+    }
+
+    if (it.sectionId === 'signali') {
+      signali.push({ ...card, cat: 'priprema-signali' })
+    } else {
+      ostalo.push({ ...card, cat: 'priprema' })
+    }
+  }
+
+  return { signali, ostalo }
+}
+
+const signalImageQuestions = buildSignalImageQuestions()
+const { signali: pripremaSignaliQuestions, ostalo: pripremaOstaloQuestions } = buildPripremaQuestions()
 
 export const agencijaManualQuestions = [
   // ─── SIGNALI ───────────────────────────────────────────
@@ -1491,7 +1508,12 @@ export const agencijaManualQuestions = [
   },
 ]
 
-export const agencijaQuestions = [...pravilnikQuestions, ...agencijaManualQuestions]
+export const agencijaQuestions = [
+  ...signalImageQuestions,
+  ...pripremaSignaliQuestions,
+  ...pripremaOstaloQuestions,
+  ...agencijaManualQuestions,
+]
 
 export function getAgencijaByCat(catId) {
   if (!catId) return agencijaQuestions
