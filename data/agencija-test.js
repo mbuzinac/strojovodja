@@ -1,14 +1,16 @@
 /**
  * Banka pitanja za usmeni agencijski ispit (ASZ / dozvola).
- * Tabovi: Priprema | Signali | Likovni | Ostalo
+ * Tabovi: Usmeno | Priprema | Signali | Likovni | Ostalo
  */
 
 import { pravilnikCategories } from './signalni-pravilnik.js'
 import { pripremaItems } from './priprema-ispit.js'
 import { enrichSignal } from './agencija-signali-enrich.js'
 import { likovniQuestions } from './agencija-likovni.js'
+import { usmenoQuestions } from './agencija-usmeno.js'
 
 export const agencijaCats = [
+  { id: 'usmeno', title: 'Usmeno', icon: '🎤' },
   { id: 'priprema', title: 'Priprema', icon: '📕' },
   { id: 'signali-img', title: 'Signali', icon: '🚦' },
   { id: 'likovni', title: 'Likovni', icon: '🤚' },
@@ -1492,6 +1494,7 @@ export const agencijaManualQuestions = [
 ]
 
 export const agencijaQuestions = [
+  ...usmenoQuestions,
   ...pripremaQuestions,
   ...signalImageQuestions,
   ...likovniQuestions,

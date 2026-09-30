@@ -9,7 +9,7 @@ import {
 useHead({ title: 'Agencijski test – Strojovođa' })
 
 const mode = ref('kartica') // 'kartica' | 'lista'
-const activeCat = ref('signali-img')
+const activeCat = ref('usmeno')
 const seed = ref(0)
 const index = ref(0)
 const revealed = ref(false)
@@ -22,7 +22,7 @@ function onImgError(e) {
   if (e?.target) e.target.style.visibility = 'hidden'
 }
 
-const STORAGE = 'agencija-test-progress-v3'
+const STORAGE = 'agencija-test-progress-v4'
 
 onMounted(() => {
   try {
