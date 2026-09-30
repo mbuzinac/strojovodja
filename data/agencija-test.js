@@ -1,6 +1,6 @@
 /**
  * Banka pitanja za usmeni agencijski ispit (ASZ / dozvola).
- * Prioritet: 1) signali sa slikom + potpuni odgovor  2) priprema  3) teorija
+ * Tabovi: Priprema | Signali | Likovni | Ostalo
  */
 
 import { pravilnikCategories } from './signalni-pravilnik.js'
@@ -9,23 +9,10 @@ import { enrichSignal } from './agencija-signali-enrich.js'
 import { likovniQuestions } from './agencija-likovni.js'
 
 export const agencijaCats = [
-  { id: 'likovni', title: 'Likovni · pokaži i objasni', icon: '🤚' },
-  { id: 'signali-img', title: 'Signali · slika + značenje', icon: '🚦' },
-  { id: 'priprema-signali', title: 'Priprema · signali', icon: '📕' },
-  { id: 'priprema', title: 'Priprema · ostalo', icon: '📝' },
-  { id: 'signali', title: 'Teorija signala', icon: '💡' },
-  { id: 'postupci', title: 'Postupci u vožnji', icon: '🚂' },
-  { id: 'kocnice', title: 'Kočnice', icon: '🛑' },
-  { id: 'skretnice', title: 'Skretnice i manevra', icon: '🔀' },
-  { id: 'isprave', title: 'Isprave i nalozi', icon: '📋' },
-  { id: 'agencija', title: 'Agencija / dozvola / SMS', icon: '🏛️' },
-  { id: 'brojke', title: 'Brojke (brzine, vremena)', icon: '🔢' },
-  { id: 'vozila', title: 'Vozila i podsklopovi', icon: '⚙️' },
-  { id: 'zvuk', title: 'Znakovi sirene / PAZI', icon: '📢' },
-  { id: 'zcp', title: 'ŽCP i prijelazi', icon: '🚧' },
-  { id: 'elektro', title: 'Elektrovuča', icon: '⚡' },
-  { id: 'osoblje', title: 'Osoblje i dužnosti', icon: '👷' },
-  { id: 'oznake', title: 'Signalne oznake', icon: '📍' },
+  { id: 'priprema', title: 'Priprema', icon: '📕' },
+  { id: 'signali-img', title: 'Signali', icon: '🚦' },
+  { id: 'likovni', title: 'Likovni', icon: '🤚' },
+  { id: 'ostalo', title: 'Ostalo', icon: '📝' },
 ]
 
 const SKIP_SIGNAL_NAMES = /^(postupak|u slučaju kvara|namijenjen)/i
@@ -70,10 +57,9 @@ function buildSignalImageQuestions() {
   return out
 }
 
-/** Sva pitanja iz Priprema za ispit (signali odvojeno – imaju dobre odgovore + slike) */
+/** Sva pitanja iz Priprema_za_ispit.md – jedan tab */
 function buildPripremaQuestions() {
-  const signali = []
-  const ostalo = []
+  const out = []
   let n = 0
 
   for (const it of pripremaItems) {
@@ -90,28 +76,23 @@ function buildPripremaQuestions() {
 
     if (!answer?.trim()) continue
 
-    const card = {
+    out.push({
       id: `prep-${it.sectionId || 'x'}-${it.num || n}`,
+      cat: 'priprema',
       question: it.question,
       answer: answer.trim(),
       images,
-      group: it.sectionId === 'signali' ? 'Priprema · Dio 1 Signali' : (it.sectionId || 'Priprema'),
+      group: it.sectionId === 'signali' ? 'Priprema · Signali' : (it.sectionId || 'Priprema'),
       kind: images.length ? 'signal' : 'qa',
       name: null,
-    }
-
-    if (it.sectionId === 'signali') {
-      signali.push({ ...card, cat: 'priprema-signali' })
-    } else {
-      ostalo.push({ ...card, cat: 'priprema' })
-    }
+    })
   }
 
-  return { signali, ostalo }
+  return out
 }
 
 const signalImageQuestions = buildSignalImageQuestions()
-const { signali: pripremaSignaliQuestions, ostalo: pripremaOstaloQuestions } = buildPripremaQuestions()
+const pripremaQuestions = buildPripremaQuestions()
 
 export const agencijaManualQuestions = [
   // ─── SIGNALI ───────────────────────────────────────────
@@ -1511,11 +1492,10 @@ export const agencijaManualQuestions = [
 ]
 
 export const agencijaQuestions = [
-  ...likovniQuestions,
+  ...pripremaQuestions,
   ...signalImageQuestions,
-  ...pripremaSignaliQuestions,
-  ...pripremaOstaloQuestions,
-  ...agencijaManualQuestions,
+  ...likovniQuestions,
+  ...agencijaManualQuestions.map((q) => ({ ...q, cat: 'ostalo', group: q.group || q.cat })),
 ]
 
 export function getAgencijaByCat(catId) {
