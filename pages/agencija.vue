@@ -9,7 +9,7 @@ import {
 useHead({ title: 'Agencijski test – Strojovođa' })
 
 const mode = ref('kartica') // 'kartica' | 'lista'
-const activeCat = ref('signali-img')
+const activeCat = ref('likovni')
 const seed = ref(0)
 const index = ref(0)
 const revealed = ref(false)
@@ -238,8 +238,13 @@ function jumpToWeak() {
 
           <div class="p-5 sm:p-7">
             <p class="text-[10px] font-bold uppercase tracking-wider text-amber-500/80 mb-1">
-              {{ current.kind === 'signal' ? 'Signal · reci što vidiš i što radiš' : 'Pitanje · usmeni odgovor' }}
+              {{ current.kind === 'likovni'
+                ? 'Likovni · pokaži sliku i izgovori'
+                : current.kind === 'signal'
+                  ? 'Signal · reci što vidiš i što radiš'
+                  : 'Pitanje · usmeni odgovor' }}
             </p>
+            <p v-if="current.name" class="text-sm text-cyan-400/90 mb-1">„{{ current.name }}"</p>
             <p v-if="current.group" class="text-[11px] text-slate-500 mb-2">{{ current.group }}</p>
             <h2 class="text-lg sm:text-xl font-semibold text-white leading-snug whitespace-pre-line">
               {{ current.question }}
@@ -247,16 +252,29 @@ function jumpToWeak() {
 
             <div
               v-if="current.images?.length"
-              class="mt-5 flex flex-wrap justify-center gap-4 rounded-xl border border-cyan-500/20 bg-slate-950 px-4 py-6"
+              class="mt-5 flex flex-wrap justify-center gap-5 rounded-xl border border-cyan-500/20 bg-slate-950 px-4 py-6"
             >
-              <img
+              <figure
                 v-for="(src, i) in current.images"
                 :key="i"
-                :src="assetPath(src)"
-                :alt="current.name || current.question"
-                class="max-h-52 max-w-[220px] object-contain rounded-md bg-white/5 p-2"
-                @error="onImgError"
-              />
+                class="flex flex-col items-center gap-2"
+              >
+                <figcaption
+                  v-if="current.imageLabels?.[i]"
+                  class="text-xs font-bold uppercase tracking-wider text-amber-400"
+                >
+                  {{ current.imageLabels[i] }}
+                </figcaption>
+                <img
+                  :src="assetPath(src)"
+                  :alt="current.imageLabels?.[i] || current.name || current.question"
+                  class="object-contain rounded-md bg-white/5 p-2"
+                  :class="current.bigImages
+                    ? 'max-h-64 max-w-[260px] sm:max-h-72 sm:max-w-[280px]'
+                    : 'max-h-52 max-w-[220px]'"
+                  @error="onImgError"
+                />
+              </figure>
             </div>
 
             <div class="mt-6">

@@ -83,7 +83,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
               <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/40">USMENI</span>
             </div>
             <p class="text-sm text-slate-300 leading-relaxed">
-              Signali: slika → što znači i što radiš. Plus sva pitanja iz pripreme.
+              Likovni signali (pokaži i objasni), slike + priprema.
             </p>
           </div>
           <svg class="w-5 h-5 text-amber-400 shrink-0 ml-auto group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">

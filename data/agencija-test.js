@@ -6,8 +6,10 @@
 import { pravilnikCategories } from './signalni-pravilnik.js'
 import { pripremaItems } from './priprema-ispit.js'
 import { enrichSignal } from './agencija-signali-enrich.js'
+import { likovniQuestions } from './agencija-likovni.js'
 
 export const agencijaCats = [
+  { id: 'likovni', title: 'Likovni · pokaži i objasni', icon: '🤚' },
   { id: 'signali-img', title: 'Signali · slika + značenje', icon: '🚦' },
   { id: 'priprema-signali', title: 'Priprema · signali', icon: '📕' },
   { id: 'priprema', title: 'Priprema · ostalo', icon: '📝' },
@@ -1509,6 +1511,7 @@ export const agencijaManualQuestions = [
 ]
 
 export const agencijaQuestions = [
+  ...likovniQuestions,
   ...signalImageQuestions,
   ...pripremaSignaliQuestions,
   ...pripremaOstaloQuestions,

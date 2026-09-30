@@ -43,20 +43,33 @@ function onImgError(e) {
         </div>
       </div>
 
-      <!-- Slike signala – vidljive PRIJE odgovora -->
+      <!-- Slike signala – vidljive PRIJE odgovora (likovni: veće + oznaka Dan/Noć) -->
       <div
         v-if="item.images?.length"
-        class="mt-3 flex flex-wrap justify-center gap-3 rounded-lg border border-cyan-500/15 bg-slate-950/80 px-3 py-4"
+        class="mt-3 flex flex-wrap justify-center gap-4 rounded-lg border border-cyan-500/15 bg-slate-950/80 px-3 py-4"
       >
-        <img
+        <figure
           v-for="(src, i) in item.images"
           :key="i"
-          :src="assetPath(src)"
-          :alt="item.name || item.question"
-          loading="lazy"
-          class="max-h-36 max-w-[160px] object-contain rounded-md bg-white/5 p-1.5"
-          @error="onImgError"
-        />
+          class="flex flex-col items-center gap-1.5"
+        >
+          <figcaption
+            v-if="item.imageLabels?.[i]"
+            class="text-[10px] font-bold uppercase tracking-wider text-amber-400/90"
+          >
+            {{ item.imageLabels[i] }}
+          </figcaption>
+          <img
+            :src="assetPath(src)"
+            :alt="item.imageLabels?.[i] || item.name || item.question"
+            loading="lazy"
+            class="object-contain rounded-md bg-white/5 p-2"
+            :class="item.bigImages
+              ? 'max-h-52 max-w-[200px] sm:max-h-64 sm:max-w-[240px]'
+              : 'max-h-36 max-w-[160px]'"
+            @error="onImgError"
+          />
+        </figure>
       </div>
 
       <button
