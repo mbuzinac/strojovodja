@@ -5,10 +5,11 @@ import {
   getAgencijaByCat,
   shuffleAgencija,
 } from '~/data/agencija-test.js'
+import { canQuizItem } from '~/data/agencija-quiz.js'
 
 useHead({ title: 'Agencijski test – Strojovođa' })
 
-const mode = ref('kartica') // 'kartica' | 'lista'
+const mode = ref('kviz') // 'kviz' | 'kartica' | 'lista'
 const activeCat = ref('usmeno')
 const filterMode = ref('all') // 'all' | 'new' | 'weak' | 'known'
 const seed = ref(0)
@@ -35,7 +36,7 @@ function closeLightbox() {
 }
 
 const STORAGE = 'agencija-test-progress-v5'
-const SESSION = 'agencija-test-session-v5'
+const SESSION = 'agencija-test-session-v6'
 
 onMounted(() => {
   try {
@@ -80,15 +81,17 @@ const basePool = computed(() => {
 })
 
 const pool = computed(() => {
-  const items = basePool.value
+  let items = basePool.value
   if (filterMode.value === 'new') {
-    return items.filter(q => known.value[q.id] == null)
+    items = items.filter(q => known.value[q.id] == null)
+  } else if (filterMode.value === 'weak') {
+    items = items.filter(q => known.value[q.id] === false)
+  } else if (filterMode.value === 'known') {
+    items = items.filter(q => known.value[q.id] === true)
   }
-  if (filterMode.value === 'weak') {
-    return items.filter(q => known.value[q.id] === false)
-  }
-  if (filterMode.value === 'known') {
-    return items.filter(q => known.value[q.id] === true)
+  // Milijunaš: samo pitanja za koja imamo 4 odgovora
+  if (mode.value === 'kviz') {
+    items = items.filter(q => canQuizItem(q, basePool.value))
   }
   return items
 })
@@ -165,18 +168,29 @@ function toggleReveal() {
   revealed.value = !revealed.value
 }
 
-function mark(ok) {
+/** Samo zabilježi (kviz ostaje na kartici da vidiš objašnjenje). */
+function markOnly(ok) {
   if (!current.value) return
   known.value[current.value.id] = ok
   if (ok) {
     celebrating.value = true
     setTimeout(() => { celebrating.value = false }, 420)
   }
+}
+
+function mark(ok) {
+  markOnly(ok)
   if (index.value < total.value - 1) {
     next()
   } else {
     revealed.value = false
   }
+}
+
+function setMode(m) {
+  mode.value = m
+  index.value = 0
+  revealed.value = false
 }
 
 function clearProgress() {
@@ -188,7 +202,7 @@ function clearProgress() {
 
 function jumpToWeak() {
   setFilter('weak')
-  mode.value = 'kartica'
+  if (mode.value === 'lista') mode.value = 'kviz'
 }
 
 function onKey(e) {
@@ -256,27 +270,38 @@ function onTouchEnd(e) {
               <span>🎓</span> Agencijski test
             </h1>
             <p class="text-xs text-slate-500">
-              {{ knownCount }}/{{ basePool.length || agencijaQuestions.length }} znaš · Space = odgovor
+              {{ knownCount }}/{{ basePool.length || agencijaQuestions.length }} znaš ·
+              {{ mode === 'kviz' ? 'A–D odgovori' : 'Space = odgovor' }}
             </p>
           </div>
-          <div class="flex shrink-0 gap-1.5">
+          <div class="flex shrink-0 gap-1">
             <button
               type="button"
-              class="rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors"
+              class="rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
+              :class="mode === 'kviz'
+                ? 'border-amber-500/50 bg-amber-500/20 text-amber-200'
+                : 'border-slate-700 bg-slate-900 text-slate-400'"
+              @click="setMode('kviz')"
+            >
+              💰 Kviz
+            </button>
+            <button
+              type="button"
+              class="rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
               :class="mode === 'kartica'
                 ? 'border-amber-500/40 bg-amber-500/15 text-amber-300'
                 : 'border-slate-700 bg-slate-900 text-slate-400'"
-              @click="mode = 'kartica'"
+              @click="setMode('kartica')"
             >
               Kartica
             </button>
             <button
               type="button"
-              class="rounded-lg border px-2.5 py-1.5 text-xs font-medium transition-colors"
+              class="rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"
               :class="mode === 'lista'
                 ? 'border-amber-500/40 bg-amber-500/15 text-amber-300'
                 : 'border-slate-700 bg-slate-900 text-slate-400'"
-              @click="mode = 'lista'"
+              @click="setMode('lista')"
             >
               Lista
             </button>
@@ -389,15 +414,42 @@ function onTouchEnd(e) {
         class="rounded-2xl border border-dashed border-slate-700 bg-slate-900/40 px-6 py-16 text-center"
       >
         <p class="text-base font-semibold text-slate-300">Nema pitanja u ovom filtru</p>
-        <p class="mt-1 text-sm text-slate-500">Promijeni filter ili tab.</p>
-        <button
-          type="button"
-          class="mt-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-300"
-          @click="setFilter('all')"
-        >
-          Prikaži sve
-        </button>
+        <p class="mt-1 text-sm text-slate-500">
+          {{ mode === 'kviz' ? 'U ovom tabu nema kviz-pitanja, ili filter nema rezultata.' : 'Promijeni filter ili tab.' }}
+        </p>
+        <div class="mt-4 flex flex-wrap justify-center gap-2">
+          <button
+            type="button"
+            class="rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-2 text-sm text-cyan-300"
+            @click="setFilter('all')"
+          >
+            Prikaži sve
+          </button>
+          <button
+            v-if="mode === 'kviz'"
+            type="button"
+            class="rounded-xl border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-300"
+            @click="setMode('kartica')"
+          >
+            Način Kartica
+          </button>
+        </div>
       </div>
+
+      <!-- KVIZ / MILIJUNAŠ -->
+      <AgencijaQuiz
+        v-else-if="mode === 'kviz' && current"
+        :item="current"
+        :pool="basePool"
+        :num="index + 1"
+        :total="total"
+        :cat="catMeta[current.cat]"
+        :status="known[current.id]"
+        @mark="markOnly"
+        @next="next"
+        @prev="prev"
+        @zoom="openLightbox"
+      />
 
       <!-- KARTICA -->
       <div
