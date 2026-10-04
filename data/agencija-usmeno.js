@@ -17,72 +17,100 @@ const teorija = [
     id: 'u1',
     group: 'Isprave',
     question: '1. Kad strojovođa od prometnika dobije pisani nalog?',
-    answer: `Pisani nalog je SE-3 (Signalna evidencija – pisani nalog). Papir kojim ti prometnik kaže nešto posebno što nije (ili nije moglo biti) u običnom nalogu za vožnju.
+    answer: `💡 Što znači:
+SE-3 = pisani nalog – posebna uputa koja nije (mogla biti) u običnom nalogu SE-1.
 
-Dobiješ ga kad, npr.:
-• moraš stati ispred ŽCP-a
-• voziš nepravilnim kolosijekom
-• smiješ proći pokraj signala koji kaže STOJ
-• na pruzi ima radova
+🚂 Što radiš:
+Dobiješ ga kad npr. moraš stati ispred ŽCP-a, voziš nepravilnim kolosijekom, smiješ proći uz STOJ, ili ima radova. Potpišeš tek kad si razumio što piše i što ti je usmeno rečeno.
 
-Potpišeš kad si razumio što piše i što ti je usmeno rečeno.`,
+✅ Usmeno reci:
+„Pisani nalog je SE-3. Dobijem ga za posebne situacije – ŽCP, nepravilni kolosijek, prolazak uz STOJ, radovi. Potpišem kad sam razumio.“`,
   }),
   q({
     id: 'u2',
     group: 'Isprave',
     question: '2. Koje su popratne isprave vlaka i što je SE-2?',
-    answer: `Papiri koji „prate“ vlak:
+    answer: `💡 Što znači:
+Popratne isprave: SE-1 nalog, SE-2 sastav i kočenje, SE-3 pisani nalog, SE-4 primopredaja, SE-5 raspored manevriranja.
 
-• SE-1 – Nalog za vožnju (osnovna dozvola/uputa)
-• SE-2 – Izvješće o sastavu i kočenju (masa, duljina, kako koči)
-• SE-3 – Pisani nalog (posebne upute)
-• SE-4 – Primopredaja vlaka
-• SE-5 – Raspored manevriranja
+🚂 Što radiš:
+SE-2 se prvo ispunjava – u njemu masa, duljina, osovine, P (postotak kočenja), kočna masa, je li proba napravljena. Bez SE-2 ne krećeš.
 
-SE-2 se prvo ispunjava. U njemu: broj i relacija vlaka, masa, duljina, broj osovina, koliko kočenja treba (P = postotak kočenja), koliko kočne mase stvarno imaš, je li proba kočenja napravljena.`,
+✅ Usmeno reci:
+„Isprave su SE-1 do SE-5. SE-2 je izvješće o sastavu i kočenju i prvo se ispunjava.“`,
   }),
   q({
     id: 'u3',
     group: 'Postupci',
     question: '3. Kad i kome se javljaš s pruge ako ne možeš popraviti kvar na VV?',
-    answer: `Ako kvar na VV (vučnom vozilu) ne možeš sam riješiti: što prije javi upravitelju infrastrukture — u praksi prometniku / TK.
+    answer: `💡 Što znači:
+Kvar na VV koji ne možeš sam riješiti moraš prijaviti UI-u.
 
-Reci gdje si i što se dogodilo, i provjeri da su te razumjeli.
+🚂 Što radiš:
+1. Što prije javi prometniku / TK
+2. Reci gdje si i što se dogodilo – potvrdi da su razumjeli
+3. Na otvorenoj pruzi javi se i nakon 15 min
 
-Ako stojiš na otvorenoj pruzi, javi se prometnicima nakon 15 min.`,
+✅ Usmeno reci:
+„Javim se što prije prometniku ili TK-u, kažem mjesto i kvar. Ako stojim na otvorenoj pruzi, javim se i nakon 15 minuta.“`,
   }),
   q({
     id: 'u4',
     group: 'Agencija',
     question: '4. Što radi ASZ?',
-    answer: `ASZ (Agencija za sigurnost željezničkog prometa) je „državni čuvar“ željezničke sigurnosti.
+    answer: `💡 Što znači:
+ASZ = Agencija za sigurnost željezničkog prometa – državni nadzor sigurnosti.
 
+🚂 Što radiš / zapamti:
 • nadzire i uređuje sigurnost
 • odobrava centre za obuku i ispitivače
 • izdaje dozvolu strojovođi
-• nadzire i odobrava SMS kod UI i prijevoznika`,
+• nadzire i odobrava SMS kod UI i prijevoznika
+
+✅ Usmeno reci:
+„ASZ nadzire sigurnost, odobrava obuku i ispitivače, izdaje dozvolu i nadzire SMS.“`,
   }),
   q({
     id: 'u5',
     group: 'Agencija',
     question: '5. Što piše u dozvoli i koliko vrijedi?',
-    answer: `Dozvola potvrđuje tko si, da zadovoljavaš zdravlje, školu i stručnost, te za koje kategorije smiješ voziti.
+    answer: `💡 Što znači:
+Dozvola potvrđuje tko si, zdravlje, školu, stručnost i kategorije vozila.
 
-Vrijedi 10 godina. Za vožnju trebaš dozvolu + potvrdu.`,
+🚂 Što radiš:
+Za vožnju trebaš dozvolu + potvrdu. Vrijedi 10 godina – prati rok.
+
+✅ Usmeno reci:
+„U dozvoli je tko sam, zdravlje/škola/stručnost i kategorije. Vrijedi 10 godina, uz potvrdu.“`,
   }),
   q({
     id: 'u6',
     group: 'Skretnice',
     question: '6. Što je presjecanje skretnice?',
-    answer: `Kad vlak nasilno „prebaci“ skretnicu vožnjom niz jezičak (skretnica se ne prebaci uredno, nego je „presiječeš“).
+    answer: `💡 Što znači:
+Presjecanje = vlak nasilno prebaci skretnicu vožnjom niz jezičak.
 
-Preko takve skretnice max 20 km/h.`,
+🚂 Što radiš:
+Preko takve skretnice max 20 km/h. Za uz jezičak treba dodatni postupak (pregled, bravica).
+
+✅ Usmeno reci:
+„Presjecanje je nasilno prebacivanje skretnice niz jezičak. Max 20 km/h.“`,
   }),
   q({
     id: 'u7',
     group: 'Skretnice',
     question: '7. Što treba učiniti da se smije ići preko presječene skretnice uz jezičak?',
-    answer: `Skretnicu pregledati, ručno staviti kako treba, pa je zaključati (klin + ambulantna brava). Tek onda vožnja uz jezičak.`,
+    answer: `💡 Što znači:
+Uz jezičak na presječenoj skretnici smiješ tek kad je skretnica osigurana.
+
+🚂 Što radiš:
+1. Pregledaj skretnicu
+2. Ručno je postavi kako treba
+3. Zaključaj (klin + ambulantna brava)
+4. Tek onda vozi uz jezičak
+
+✅ Usmeno reci:
+„Pregledam, ručno postavim i zaključam klinom i ambulantnom bravom – tek onda smijem uz jezičak.“`,
   }),
   q({
     id: 'u8',
@@ -165,46 +193,65 @@ Vrste:
     id: 'u15',
     group: 'Znakovi',
     question: '15. Pet situacija kad daješ „PAZI“?',
-    answer: `Znak PAZI = jedan dugačak zvuk. Barem:
+    answer: `💡 Što znači:
+PAZI = jedan dugačak zvuk (upozorenje).
 
-1. ispred mjesta rada na pruzi
+🚂 Što radiš:
+Daj PAZI barem:
+1. ispred radova na pruzi
 2. ispred neispravnog / nezaposjednutog ŽCP-a
 3. prije tunela, mosta ili usjeka
 4. kod mimoilaženja vlakova
-5. kad dolaziš na stajalište nepravilnim kolosijekom
+5. na stajalište nepravilnim kolosijekom
+(+ prilazni signal, loša vidljivost, potiskivanje…)
 
-(Još: prilazni signal, loša vidljivost, potiskivanje…)`,
+✅ Usmeno reci:
+„PAZI je jedan dugačak – radovi, neispravan ŽCP, tunel/most, mimoilaženje, nepravilni kolosijek…“`,
   }),
   q({
     id: 'u16',
     group: 'Postupci',
     question: '16. Što radiš ako izbije požar na VV?',
-    answer: `1. Zaustavi vlak na što sigurnijem mjestu
-2. Pokušaj gasiti (aparati / ugrađeni sustav)
-3. Evakuiraj ljude na sigurno
-4. Što prije javi UI i zovi pomoć
-5. Ne riskiraj — slijedi uputu za tu seriju vozila`,
+    answer: `💡 Što znači:
+Požar na vučnom vozilu = hitan postupak, prioritet ljudi i sigurnost.
+
+🚂 Što radiš:
+1. Zaustavi na što sigurnijem mjestu
+2. Gasi (aparati / ugrađeni sustav)
+3. Evakuiraj ljude
+4. Javi UI i zovi pomoć
+5. Ne riskiraj – slijedi uputu za tu seriju
+
+✅ Usmeno reci:
+„Stanem na sigurno, gasim, evakuiram, javim UI i zovem pomoć.“`,
   }),
   q({
     id: 'u17',
     group: 'Skretnice',
     question: '17. Treba li ambulantna brava za vožnju uz jezičak?',
-    answer: `Da — za vožnju uz jezičak na presječenoj skretnici.
-Za vožnju niz jezičak — ne (osim posebnih iznimaka na otvorenoj pruzi po obavijesti).
+    answer: `💡 Što znači:
+Ambulantna brava osigurava skretnicu za vožnju uz jezičak na presječenoj.
 
-Jednostavno: uz = brava da; niz = brava ne.`,
+🚂 Što radiš:
+• Uz jezičak na presječenoj → DA, treba brava
+• Niz jezičak → NE (osim posebnih iznimaka po obavijesti)
+
+✅ Usmeno reci:
+„Za uz jezičak na presječenoj – da; za niz – ne.“`,
   }),
   q({
     id: 'u18',
     group: 'Postupci',
     question: '18. Što radiš kod požara na DM?',
-    answer: `DM = dizelski motor.
-HITNA procedura gašenja/zaustavljanja motora, pa gašenje i obavijest UI.
+    answer: `💡 Što znači:
+DM = dizelski motor. Požar na DM = hitno zaustavljanje motora.
 
-Tri načina zaustavljanja DM-a:
-• regularna — sve OK
-• ubrzana — zadjelovala zaštita
-• hitna — upravo kod požara na DM`,
+🚂 Što radiš:
+Hitno zaustavi DM → gasi → javi UI.
+Tri načina zaustavljanja: regularna (sve OK), ubrzana (zaštita), hitna (požar na DM).
+
+✅ Usmeno reci:
+„Kod požara na DM hitno zaustavim motor, gasim i javim UI.“`,
   }),
   q({
     id: 'u19',
@@ -321,9 +368,14 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • loparić pod pazuhom, širokom površinom prema čelu i kraju vlaka
 • noću: zelena svjetiljka okrenuta prema kraju vlaka
 
-💡 Osoblje je na mjestima; vlak se prima / priprema.
+💡 Što znači:
+Osoblje je na mjestima; vlak se prima / priprema.
 
-🚂 Ti: budi spreman, prati daljnje znakove (priprema / polazak).`,
+🚂 Što radiš:
+Budi spreman, prati daljnje znakove (priprema / polazak) — još ne krećeš.
+
+✅ Usmeno reci:
+„Na mjesta – osoblje je na mjestima. Ja sam spreman i čekam pripremu ili polazak.“`,
   }),
   q({
     id: 'ur-priprema',
@@ -339,7 +391,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • noću: svjetiljka u visini grudi, zelena prema kraju (naizmjenično kraj/čelo)
 • + usna zviždaljka: jedan dugi zvižduk
 
-🚂 Ti: pripremi se za polazak (kočnice, vrata, pažnja) — još NE krećeš dok ne dođe „Polazak“.`,
+🚂 Što radiš:
+pripremi se za polazak (kočnice, vrata, pažnja) — još NE krećeš dok ne dođe „Polazak“.`,
   }),
   q({
     id: 'ur-polazak',
@@ -355,7 +408,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • noću: zelena svjetiljka iznad glave prema čelu
 • ili: kružnica svjetlećih žarulja na izlaznom signalu
 
-🚂 Ti: smiješ krenuti (ako su i drugi uvjeti OK – signal, nalog, vrata…).`,
+🚂 Što radiš:
+smiješ krenuti (ako su i drugi uvjeti OK – signal, nalog, vrata…).`,
   }),
   q({
     id: 'ur-prolazak',
@@ -368,7 +422,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 
 👁: iznad glave u jednakim razmacima diže i spušta loparić (ili zelenu svjetiljku) prema nadolazećem vlaku.
 
-🚂 Ti: prolazak kroz kolodvor je slobodan — nastavi vožnju pažljivo.`,
+🚂 Što radiš:
+prolazak kroz kolodvor je slobodan — nastavi vožnju pažljivo.`,
   }),
 
   // Manevriranje
@@ -385,7 +440,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • DAN: crvena zastavica koso naniže + produženi zvižduk (visok↔dubok)
 • NOĆ: bijela svjetiljka u visini grudi + isti zvižduk
 
-🚂 Ti: vozi lagano / smanji brzinu manevre.`,
+🚂 Što radiš:
+vozi lagano / smanji brzinu manevre.`,
   }),
   q({
     id: 'ur-stoj-man',
@@ -400,7 +456,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • DAN: mahanje u KRUG crvenom zastavicom + ≥5 kratkih zvižduka
 • NOĆ: isto u krug bijelom svjetiljkom + ≥5 kratkih zvižduka
 
-🚂 Ti: ODMAH stani.`,
+🚂 Što radiš:
+ODMAH stani.`,
   }),
   q({
     id: 'ur-naprijed',
@@ -417,7 +474,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 
 „Malo naprijed“ = isto, ali KRAĆI potezi + 1 kratak zvižduk.
 
-🚂 Ti: kreni / vozi naprijed (malo = samo malo).`,
+🚂 Što radiš:
+kreni / vozi naprijed (malo = samo malo).`,
   }),
   q({
     id: 'ur-natrag',
@@ -434,7 +492,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 
 „Malo natrag“ = KRAĆI potezi + 2 kratka zvižduka.
 
-🚂 Ti: vozi natrag (malo = samo malo).`,
+🚂 Što radiš:
+vozi natrag (malo = samo malo).`,
   }),
   q({
     id: 'ur-odbacaj',
@@ -449,7 +508,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • DAN: zastavica + slobodna ruka koso prema gore + 1 kratki i 1 dugačak zvižduk
 • NOĆ: bijela svjetiljka koso prema gore + isti zvižduk
 
-🚂 Ti: odbačaj (odvoji / gurni vagone prema uputi).`,
+🚂 Što radiš:
+odbačaj (odvoji / gurni vagone prema uputi).`,
   }),
 
   // Proba kočnica
@@ -462,7 +522,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 
 • tri kratka i jedan dugačak zvižduk, ponavljati više puta
 
-🚂 Ti: spremi se na znakove Zakoči / Otkoči.`,
+🚂 Što radiš:
+spremi se na znakove Zakoči / Otkoči.`,
   }),
   q({
     id: 'ur-zakoci',
@@ -477,7 +538,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • DAN: sklapati više puta ruke iznad glave, lice prema strojovođi
 • NOĆ: bijelu svjetiljku podizati više puta u obliku slova D
 
-🚂 Ti: zakoči (proba) – spusti tlak u GV prema proceduri.`,
+🚂 Što radiš:
+zakoči (proba) – spusti tlak u GV prema proceduri.`,
   }),
   q({
     id: 'ur-otkoci',
@@ -492,7 +554,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • DAN: mahati u polukrugu rukom iznad glave, lice prema tebi
 • NOĆ: isto polukrug bijelom svjetiljkom
 
-🚂 Ti: otkoči – napuni GV, otpusti kočnice.`,
+🚂 Što radiš:
+otkoči – napuni GV, otpusti kočnice.`,
   }),
   q({
     id: 'ur-zavrsena',
@@ -505,7 +568,8 @@ Danju: loparić / crvena zastavica. Noću: signalna svjetiljka (zelena kod otpre
 • DAN: ruku podići uvis, lice prema strojovođi
 • NOĆ: uvis podići bijelu svjetiljku prema tebi
 
-🚂 Ti: proba je gotova — možeš nastaviti s pripremom / polaskom.`,
+🚂 Što radiš:
+proba je gotova — možeš nastaviti s pripremom / polaskom.`,
   }),
 
   q({

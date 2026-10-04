@@ -26,6 +26,29 @@ const isCorrect = computed(() =>
   chosen.value != null && quiz.value && chosen.value === quiz.value.correctIndex
 )
 
+/** Za usmeno: naziv → znači → radiš (posebno signali / likovni) */
+const oral = computed(() => {
+  const a = String(props.item?.answer || '')
+  const name = props.item?.name
+    || a.match(/Naziv:\s*„([^”"]+)"/i)?.[1]
+    || a.match(/📛\s*„([^”"]+)"/)?.[1]
+  const meaning = a.match(/Što znači:\s*\n?([^\n]+)/i)?.[1]?.trim()
+  const actionMatch = a.match(/Što radiš:\s*\n?([\s\S]*?)(?=\n\s*✅|\n\s*Usmeno:|\n\s*📛|\n\s*👁|\n\s*💡|\n*$)/i)
+  const actionLine = a.match(/🚂\s*Ti:\s*([^\n]+)/i)?.[1]?.trim()
+  const action = (actionMatch?.[1] || actionLine || '').trim()
+  const say = a.match(/Usmeno reci:\s*\n?([^\n]+)/i)?.[1]?.trim()
+    || a.match(/Usmeno:\s*([^\n]+)/i)?.[1]?.trim()
+  if (!meaning && !action && !say) return null
+  return { name, meaning, action, say }
+})
+
+watch(chosen, (v) => {
+  // Kod signala odmah otvori detalj – bitan je postupak
+  if (v != null && (props.item?.kind === 'signal' || props.item?.kind === 'likovni' || oral.value)) {
+    showDetail.value = true
+  }
+})
+
 watch(() => props.item?.id, () => {
   chosen.value = null
   showDetail.value = false
@@ -228,12 +251,52 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
               ? (light ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-emerald-500/40 bg-emerald-500/15 text-emerald-200')
               : (light ? 'border-rose-600 bg-rose-50 text-rose-900' : 'border-rose-500/40 bg-rose-500/15 text-rose-200')"
           >
-            <template v-if="isCorrect">Točno! 🎉</template>
+            <template v-if="isCorrect">Točno!</template>
             <template v-else>
               Netočno. Točno je
               <span :class="light ? 'text-emerald-800' : 'text-emerald-300'">{{ letters[quiz.correctIndex] }}</span>
               — {{ quiz.options[quiz.correctIndex] }}
             </template>
+          </div>
+
+          <!-- Ključ za usmeno: značenje + što radiš -->
+          <div
+            v-if="oral"
+            class="rounded-xl border px-4 py-4 space-y-3"
+            :class="light
+              ? 'border-teal-600 bg-teal-50'
+              : 'border-teal-500/35 bg-teal-500/10'"
+          >
+            <p
+              class="text-[10px] font-bold uppercase tracking-wider"
+              :class="light ? 'text-teal-800' : 'text-teal-300'"
+            >Za usmeno – objasni ovako</p>
+            <p v-if="oral.name" class="text-sm" :class="light ? 'text-slate-900' : 'text-slate-100'">
+              <span class="font-semibold" :class="light ? 'text-cyan-800' : 'text-cyan-300'">Naziv:</span>
+              „{{ oral.name }}"
+            </p>
+            <p v-if="oral.meaning" class="text-sm" :class="light ? 'text-slate-900' : 'text-slate-100'">
+              <span class="font-semibold" :class="light ? 'text-amber-800' : 'text-amber-300'">Znači:</span>
+              {{ oral.meaning }}
+            </p>
+            <p
+              v-if="oral.action"
+              class="text-sm font-semibold leading-snug rounded-lg border px-3 py-2.5"
+              :class="light
+                ? 'border-emerald-700 bg-emerald-100 text-emerald-950'
+                : 'border-emerald-400/40 bg-emerald-500/15 text-emerald-100'"
+            >
+              <span class="block text-[10px] uppercase tracking-wider opacity-80 mb-1">Što radiš</span>
+              {{ oral.action }}
+            </p>
+            <p
+              v-if="oral.say"
+              class="text-sm leading-snug"
+              :class="light ? 'text-slate-800' : 'text-slate-200'"
+            >
+              <span class="font-semibold" :class="light ? 'text-violet-800' : 'text-violet-300'">Reci:</span>
+              {{ oral.say }}
+            </p>
           </div>
 
           <button
@@ -244,7 +307,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
               : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'"
             @click="showDetail = !showDetail"
           >
-            <span>{{ showDetail ? 'Sakrij detaljan odgovor' : 'Prikaži cijeli odgovor / objašnjenje' }}</span>
+            <span>{{ showDetail ? 'Sakrij cijeli odgovor' : 'Još detalja (izgled / napomene)' }}</span>
             <span class="text-xs opacity-70">{{ showDetail ? '▲' : '▼' }}</span>
           </button>
 
@@ -255,10 +318,6 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
               ? 'border-emerald-600 bg-emerald-50 text-slate-900'
               : 'border-emerald-500/20 bg-emerald-500/5'"
           >
-            <p
-              class="mb-2 text-[10px] font-bold uppercase tracking-wider"
-              :class="light ? 'text-emerald-800' : 'text-emerald-400/80'"
-            >Detaljno</p>
             <AgencijaAnswer :text="item.answer" />
           </div>
         </div>

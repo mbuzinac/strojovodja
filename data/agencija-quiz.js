@@ -1,340 +1,343 @@
 /**
  * Milijunaš kviz – kratki točni odgovor + 3 mamca.
  * Full explanation ostaje u item.answer.
+ * Kod signala/likovnog ABCD ide na „što radiš“, ne samo naziv.
  */
 
-/** Ručno napisani kvizovi za usmena pitanja (najbolje za pamćenje). */
+import { signalQuizShort } from './agencija-signali-enrich.js'
+
+/** Ručno napisani kvizovi – kratko kao usmeni odgovor. */
 export const QUIZ_BANK = {
   u1: {
-    short: 'Kad treba posebna uputa (ŽCP, nepravilni kolosijek, prolazak uz STOJ, radovi…) – SE-3',
+    short: 'SE-3: posebna uputa (ŽCP, nepravilni kolosijek, prolazak uz STOJ, radovi) – potpišeš kad razumiješ',
     options: [
-      'Kad treba posebna uputa (ŽCP, nepravilni kolosijek, prolazak uz STOJ, radovi…) – SE-3',
+      'SE-3: posebna uputa (ŽCP, nepravilni kolosijek, prolazak uz STOJ, radovi) – potpišeš kad razumiješ',
       'Uvijek prije svake vožnje umjesto naloga SE-1',
       'Samo kad mijenjaš lokomotivu ili strojovođu',
       'Samo noću ili pri lošoj vidljivosti',
     ],
   },
   u2: {
-    short: 'SE-1 do SE-5; SE-2 = sastav i kočenje (prvo se ispunjava)',
+    short: 'SE-1…SE-5; SE-2 = sastav i kočenje (prvo se ispunjava)',
     options: [
-      'SE-1 do SE-5; SE-2 = sastav i kočenje (prvo se ispunjava)',
+      'SE-1…SE-5; SE-2 = sastav i kočenje (prvo se ispunjava)',
       'Samo SE-1 (nalog) i SE-3 (pisani nalog)',
       'SE-2 je dozvola strojovođe koju izdaje ASZ',
       'SE-2 je raspored manevriranja',
     ],
   },
   u3: {
-    short: 'Što prije prometniku/TK (UI); na otvorenoj pruzi javi se i nakon 15 min',
+    short: 'Što prije javi prometniku/TK: gdje si + što je; na otvorenoj pruzi javi se i nakon 15 min',
     options: [
-      'Što prije prometniku/TK (UI); na otvorenoj pruzi javi se i nakon 15 min',
+      'Što prije javi prometniku/TK: gdje si + što je; na otvorenoj pruzi javi se i nakon 15 min',
       'Samo ASZ-u, u roku od 24 sata',
       'Nikome – čekaš dok ne popraviš sam',
       'Samo ECM-u za održavanje',
     ],
   },
   u4: {
-    short: 'Nadzire sigurnost, odobrava obuku/ispitivače, izdaje dozvolu, nadzire SMS',
+    short: 'ASZ: nadzor sigurnosti, obuka/ispitivači, dozvola, nadzor SMS-a',
     options: [
-      'Nadzire sigurnost, odobrava obuku/ispitivače, izdaje dozvolu, nadzire SMS',
+      'ASZ: nadzor sigurnosti, obuka/ispitivači, dozvola, nadzor SMS-a',
       'Upravlja voznim redom i dodjeljuje kolosijeke',
       'To je SMS – sustav u poduzeću za sigurnost',
       'Održava lokomotive i vagone (ECM)',
     ],
   },
   u5: {
-    short: 'Tko si, zdravlje/škola/stručnost, kategorije; vrijedi 10 godina (+ potvrda)',
+    short: 'Dozvola: tko si + zdravlje/škola/stručnost + kategorije; 10 godina (+ potvrda)',
     options: [
-      'Tko si, zdravlje/škola/stručnost, kategorije; vrijedi 10 godina (+ potvrda)',
+      'Dozvola: tko si + zdravlje/škola/stručnost + kategorije; 10 godina (+ potvrda)',
       'Samo ime i prezime; vrijedi 2 godine',
       'Samo kategorije vozila; vrijedi doživotno',
       'Izdaje je UI i vrijedi 5 godina',
     ],
   },
   u6: {
-    short: 'Nasilno prebacivanje skretnice vožnjom niz jezičak; max 20 km/h',
+    short: 'Presjecanje = nasilno prebacivanje skretnice niz jezičak; max 20 km/h',
     options: [
-      'Nasilno prebacivanje skretnice vožnjom niz jezičak; max 20 km/h',
+      'Presjecanje = nasilno prebacivanje skretnice niz jezičak; max 20 km/h',
       'Planirano prebacivanje skretnice uz jezičak; max 40 km/h',
       'Kad skretnica nije zaključana ambulantnom bravom',
       'Vožnja preko skretnice u pravac bez ograničenja',
     ],
   },
   u7: {
-    short: 'Pregledati, ručno postaviti, zaključati (klin + ambulantna brava)',
+    short: 'Pregledaj → ručno postavi → zaključaj (klin + ambulantna brava) → tek onda uz jezičak',
     options: [
-      'Pregledati, ručno postaviti, zaključati (klin + ambulantna brava)',
+      'Pregledaj → ručno postavi → zaključaj (klin + ambulantna brava) → tek onda uz jezičak',
       'Samo usmena dozvola prometnika',
-      'Nista – smiješ odmah uz jezičak do 20 km/h',
+      'Ništa – smiješ odmah uz jezičak do 20 km/h',
       'Samo SE-3, bez bravice',
     ],
   },
   u8: {
-    short: 'Automatski pružni blok – SS sustav koji drži razmak vlakova',
+    short: 'APB = automatski pružni blok – SS sustav drži razmak vlakova',
     options: [
-      'Automatski pružni blok – SS sustav koji drži razmak vlakova',
+      'APB = automatski pružni blok – SS sustav drži razmak vlakova',
       'Agencija za pružni blok (dio ASZ-a)',
       'Uređaj budnosti na lokomotivi',
       'Sustav upravljanja sigurnošću u poduzeću (SMS)',
     ],
   },
   u9: {
-    short: 'A (potpuna), B, C, D (skraćene)',
+    short: 'Probe kočenja: A (potpuna), B, C, D (skraćene)',
     options: [
-      'A (potpuna), B, C, D (skraćene)',
+      'Probe kočenja: A (potpuna), B, C, D (skraćene)',
       'Samo A i B',
       'P, R i G režimi',
       'Samo potpuna proba prije svake vožnje',
     ],
   },
   u10: {
-    short: 'E F G H I K/L O R/S T U Z (UIC slova tipa vagona)',
+    short: 'UIC serije: E F G H I K/L O R/S T U Z',
     options: [
-      'E F G H I K/L O R/S T U Z (UIC slova tipa vagona)',
+      'UIC serije: E F G H I K/L O R/S T U Z',
       'Samo G (zatvoreni) i Z (cisterne)',
       'A B C D E F (kao probe kočenja)',
       'SE-1 do SE-5',
     ],
   },
   u11: {
-    short: '„Mozak“ zračne kočnice – gleda tlak u GV i puni/ispušta cilindre',
+    short: 'Rasporednik = „mozak“ zračne kočnice – gleda GV i puni/ispušta cilindre',
     options: [
-      '„Mozak“ zračne kočnice – gleda tlak u GV i puni/ispušta cilindre',
+      'Rasporednik = „mozak“ zračne kočnice – gleda GV i puni/ispušta cilindre',
       'Ručica kojom strojovođa koči (kočnik)',
       'Kompresor koji puni spremnike',
       'Uređaj budnosti (budnik)',
     ],
   },
   u12: {
-    short: 'Spaja vozila i prenosi vuču; sprega = kuka + vijak (+ automatsko)',
+    short: 'Vlačni uređaj spaja i vuče; sprega = kuka + vijak (+ automatsko)',
     options: [
-      'Spaja vozila i prenosi vuču; sprega = kuka + vijak (+ automatsko)',
+      'Vlačni uređaj spaja i vuče; sprega = kuka + vijak (+ automatsko)',
       'Samo odbojnici koji ublažuju udarce',
       'Osovinski sklop s kotačima',
       'Kabeli za upravljanje višestrukim sastavom',
     ],
   },
   u13: {
-    short: 'Osovina, kotači, ležajevi…; slobodni ili pogonski',
+    short: 'Osovinski sklop: osovina, kotači, ležajevi…; slobodni ili pogonski',
     options: [
-      'Osovina, kotači, ležajevi…; slobodni ili pogonski',
+      'Osovinski sklop: osovina, kotači, ležajevi…; slobodni ili pogonski',
       'Samo kotači bez osovine',
       'Samo pogonski – slobodnih nema',
       'Dio pantografa na krovu',
     ],
   },
   u14: {
-    short: 'Dodatne uz zračnu: hidrodinamička, elektrodinamička, magnetna',
+    short: 'Dopunske kočnice uz zračnu: hidrodinamička, elektrodinamička, magnetna',
     options: [
-      'Dodatne uz zračnu: hidrodinamička, elektrodinamička, magnetna',
+      'Dopunske kočnice uz zračnu: hidrodinamička, elektrodinamička, magnetna',
       'Samo ručna kočnica na vagonu',
       'Samo proba kočenja A',
       'Kočnice samo na lokomotivi',
     ],
   },
   u15: {
-    short: 'Jedan dugačak zvuk: radovi, neispravan ŽCP, tunel/most, mimoilaženje, nepravilni kolosijek…',
+    short: 'PAZI = 1 dugačak: radovi, neispravan ŽCP, tunel/most, mimoilaženje, nepravilni kolosijek…',
     options: [
-      'Jedan dugačak zvuk: radovi, neispravan ŽCP, tunel/most, mimoilaženje, nepravilni kolosijek…',
+      'PAZI = 1 dugačak: radovi, neispravan ŽCP, tunel/most, mimoilaženje, nepravilni kolosijek…',
       'Pet kratkih = PAZI; jedan dugačak = STOJ',
       'Samo ispred stajališta',
       'Samo noću',
     ],
   },
   u16: {
-    short: 'Stani sigurno → gasi → evakuiraj → javi UI / pomoć',
+    short: 'Požar na VV: stani sigurno → gasi → evakuiraj → javi UI / pomoć',
     options: [
-      'Stani sigurno → gasi → evakuiraj → javi UI / pomoć',
+      'Požar na VV: stani sigurno → gasi → evakuiraj → javi UI / pomoć',
       'Nastavi do sljedećeg kolodvora pa javi',
       'Samo ugasi motor i čekaj bez javljanja',
       'Prvo zovi ASZ, pa stani',
     ],
   },
   u17: {
-    short: 'Da za uz jezičak na presječenoj; ne za niz (uz = da, niz = ne)',
+    short: 'Ambulantna brava: da za uz jezičak na presječenoj; ne za niz',
     options: [
-      'Da za uz jezičak na presječenoj; ne za niz (uz = da, niz = ne)',
+      'Ambulantna brava: da za uz jezičak na presječenoj; ne za niz',
       'Uvijek da, i uz i niz',
       'Nikad nije potrebna',
       'Samo na otvorenoj pruzi, nikad u kolodvoru',
     ],
   },
   u18: {
-    short: 'Hitno zaustavi DM, gasi, javi UI (regularna / ubrzana / hitna)',
+    short: 'Požar na DM: hitno zaustavi motor → gasi → javi UI (regularna/ubrzana/hitna)',
     options: [
-      'Hitno zaustavi DM, gasi, javi UI (regularna / ubrzana / hitna)',
+      'Požar na DM: hitno zaustavi motor → gasi → javi UI (regularna/ubrzana/hitna)',
       'Samo regularno zaustavljanje pa vozi dalje',
       'Isto kao požar na električnoj lokomotivi bez razlike',
       'Ne gasi DM – samo javi ASZ',
     ],
   },
   u19: {
-    short: 'Ručno/mehaničko (vijčano), automatsko; na nekim VV i izbor',
+    short: 'Kvačenje: ručno/mehaničko (vijčano), automatsko; na nekim VV i izbor',
     options: [
-      'Ručno/mehaničko (vijčano), automatsko; na nekim VV i izbor',
+      'Kvačenje: ručno/mehaničko (vijčano), automatsko; na nekim VV i izbor',
       'Samo automatsko Scharfenberg',
       'Samo vijčano – automatskog nema',
       'Kvačenje = samo električni spojevi',
     ],
   },
   u20: {
-    short: 'Strukturni (INF, struja, CCS, vozila) i funkcionalni (promet, održavanje, telematika)',
+    short: 'Podsustavi: strukturni (INF, struja, CCS, vozila) + funkcionalni (promet, održavanje, telematika)',
     options: [
-      'Strukturni (INF, struja, CCS, vozila) i funkcionalni (promet, održavanje, telematika)',
+      'Podsustavi: strukturni (INF, struja, CCS, vozila) + funkcionalni (promet, održavanje, telematika)',
       'Samo lokomotive i vagone',
       'Samo ASZ i SMS',
       'Samo SE isprave',
     ],
   },
   u21: {
-    short: 'Smjene ne počinju/završavaju uvijek u isto vrijeme (različito doba dana/noći)',
+    short: 'Nejednakomjerni smjenski rad: smjene ne počinju/završavaju uvijek isto',
     options: [
-      'Smjene ne počinju/završavaju uvijek u isto vrijeme (različito doba dana/noći)',
+      'Nejednakomjerni smjenski rad: smjene ne počinju/završavaju uvijek isto',
       'Rad samo noću',
       'Fiksni 8–16 sati svaki dan',
       'Rad bez pauze dulje od 12 h',
     ],
   },
   u22: {
-    short: 'Sustav sigurnosti u firmi; sudjeluju UI, prijevoznici, ECM, strojovođa; ASZ nadzire',
+    short: 'SMS = sustav sigurnosti u firmi; UI, prijevoznici, ECM, strojovođa; ASZ nadzire',
     options: [
-      'Sustav sigurnosti u firmi; sudjeluju UI, prijevoznici, ECM, strojovođa; ASZ nadzire',
+      'SMS = sustav sigurnosti u firmi; UI, prijevoznici, ECM, strojovođa; ASZ nadzire',
       'SMS = druga agencija umjesto ASZ',
       'Samo strojovođa – ostali ne sudjeluju',
       'Samo automatski pružni blok (APB)',
     ],
   },
   u23: {
-    short: 'Neželjeni iznenadni događaj sa štetom (sudar, iskliznuće, ŽCP, požar…)',
+    short: 'Nesreća = neželjeni iznenadni događaj sa štetom (sudar, iskliznuće, ŽCP, požar…)',
     options: [
-      'Neželjeni iznenadni događaj sa štetom (sudar, iskliznuće, ŽCP, požar…)',
+      'Nesreća = neželjeni iznenadni događaj sa štetom (sudar, iskliznuće, ŽCP, požar…)',
       'Svaki kvar na lokomotivi',
       'Samo događaji s poginulima',
       'Planirani radovi na pruzi',
     ],
   },
   u24: {
-    short: 'Provjera budnosti; bez reakcije → upozorenje pa EVB; uklj. ~6 km/h',
+    short: 'Budnik: provjera budnosti; bez reakcije → upozorenje pa EVB; uklj. ~6 km/h',
     options: [
-      'Provjera budnosti; bez reakcije → upozorenje pa EVB; uklj. ~6 km/h',
+      'Budnik: provjera budnosti; bez reakcije → upozorenje pa EVB; uklj. ~6 km/h',
       'Uređaj za probu kočenja A',
       'Sirena za znak PAZI',
       'Rasporednik na vagonu',
     ],
   },
   u25: {
-    short: 'Ručica zračne kočnice: puni GV, stupnjevito/naglo koči i otkoči',
+    short: 'Kočnik = ručica zračne kočnice: puni GV, stupnjevito/naglo koči i otkoči',
     options: [
-      'Ručica zračne kočnice: puni GV, stupnjevito/naglo koči i otkoči',
+      'Kočnik = ručica zračne kočnice: puni GV, stupnjevito/naglo koči i otkoči',
       'Rasporednik na svakom vagonu',
       'Budnik za budnost',
       'Ambulantna brava na skretnici',
     ],
   },
   u26: {
-    short: 'Mehanički dio, kočni sustav, vučni/odbojni uređaji, pogonska postrojenja',
+    short: 'Vozilo: mehanički dio + kočni sustav + vučni/odbojni + pogonska postrojenja',
     options: [
-      'Mehanički dio, kočni sustav, vučni/odbojni uređaji, pogonska postrojenja',
+      'Vozilo: mehanički dio + kočni sustav + vučni/odbojni + pogonska postrojenja',
       'Samo sanduk i kotači',
       'Samo ASZ i SMS moduli',
       'Samo pantograf i transformator',
     ],
   },
 
-  // Ručni znakovi – kratko značenje
+  // Ručni znakovi – što TI radiš
   'ur-namjesta': {
-    short: 'Na mjesta – osoblje je na mjestima; spreman na daljnje znakove',
+    short: 'Na mjesta → ja: spreman sam, čekam pripremu/polazak (još ne krećem)',
     options: [
-      'Na mjesta – osoblje je na mjestima; spreman na daljnje znakove',
-      'Polazak – smiješ odmah krenuti',
-      'Stoj – odmah stani',
-      'Prolazak slobodan kroz kolodvor',
+      'Na mjesta → ja: spreman sam, čekam pripremu/polazak (još ne krećem)',
+      'Polazak → krećem odmah',
+      'Stoj → odmah stajem',
+      'Prolazak slobodan → kroz kolodvor bez stajanja',
     ],
   },
   'ur-priprema': {
-    short: 'Priprema za polazak – još ne krećeš; spremi se',
+    short: 'Priprema → ja: spremim se (kočnice/pažnja), JOŠ NE krećem',
     options: [
-      'Priprema za polazak – još ne krećeš; spremi se',
-      'Polazak – kreni odmah',
-      'Stoj manevre – stani',
+      'Priprema → ja: spremim se (kočnice/pažnja), JOŠ NE krećem',
+      'Polazak → krećem odmah',
+      'Stoj manevre → stajem',
       'Odbačaj vagona',
     ],
   },
   'ur-polazak': {
-    short: 'Polazak – smiješ krenuti (ako su ostali uvjeti OK)',
+    short: 'Polazak → ja: smijem krenuti (ako su signal/nalog/vrata OK)',
     options: [
-      'Polazak – smiješ krenuti (ako su ostali uvjeti OK)',
-      'Na mjesta – čekaj',
+      'Polazak → ja: smijem krenuti (ako su signal/nalog/vrata OK)',
+      'Na mjesta → samo čekam',
       'Prolazak zabranjen',
-      'Samo priprema – još ne kreći',
+      'Samo priprema – još ne krećem',
     ],
   },
   'ur-prolazak': {
-    short: 'Prolazak slobodan kroz kolodvor',
+    short: 'Prolazak slobodan → ja: nastavljam kroz kolodvor bez stajanja',
     options: [
-      'Prolazak slobodan kroz kolodvor',
+      'Prolazak slobodan → ja: nastavljam kroz kolodvor bez stajanja',
       'Polazak s kolodvora',
       'Stoj ispred signala',
       'Malo naprijed u manevri',
     ],
   },
   'ur-lagano': {
-    short: 'Lagano – smanji brzinu manevre',
+    short: 'Lagano → ja: odmah smanjim brzinu manevre',
     options: [
-      'Lagano – smanji brzinu manevre',
-      'Stoj – odmah stani',
+      'Lagano → ja: odmah smanjim brzinu manevre',
+      'Stoj → odmah stajem',
       'Naprijed punom brzinom',
       'Odbačaj',
     ],
   },
   'ur-stoj-man': {
-    short: 'Stoj (manevra) – odmah stani (krug + ≥5 kratkih)',
+    short: 'Stoj (manevra) → ja: ODMAH stajem (krug + ≥5 kratkih)',
     options: [
-      'Stoj (manevra) – odmah stani (krug + ≥5 kratkih)',
-      'Lagano – samo uspori',
+      'Stoj (manevra) → ja: ODMAH stajem (krug + ≥5 kratkih)',
+      'Lagano → samo usporim',
       'Naprijed',
       'Otkoči kod probe',
     ],
   },
   'ur-naprijed': {
-    short: 'Naprijed – gore/dolje duljim potezima + 1 dugačak',
+    short: 'Naprijed → ja: krećem naprijed (dulji potezi + 1 dugačak)',
     options: [
-      'Naprijed – gore/dolje duljim potezima + 1 dugačak',
+      'Naprijed → ja: krećem naprijed (dulji potezi + 1 dugačak)',
       'Natrag – lijevo/desno',
       'Stoj – u krug',
       'Otkoči – polukrug',
     ],
   },
   'ur-natrag': {
-    short: 'Natrag – lijevo/desno duljim potezima + 2 dugačka',
+    short: 'Natrag → ja: krećem natrag (lijevo/desno + 2 dugačka)',
     options: [
-      'Natrag – lijevo/desno duljim potezima + 2 dugačka',
+      'Natrag → ja: krećem natrag (lijevo/desno + 2 dugačka)',
       'Naprijed – gore/dolje',
       'Lagano – zastavica koso dolje',
       'Polazak – loparić iznad glave',
     ],
   },
   'ur-odbacaj': {
-    short: 'Odbačaj – zastavica + ruka koso gore',
+    short: 'Odbačaj → ja: odbačaj vagona (samo ako je dopušten)',
     options: [
-      'Odbačaj – zastavica + ruka koso gore',
+      'Odbačaj → ja: odbačaj vagona (samo ako je dopušten)',
       'Naprijed',
       'Zakoči kod probe',
       'Na mjesta',
     ],
   },
   'ur-zakoci': {
-    short: 'Zakoči – sklapati ruke iznad glave (proba)',
+    short: 'Zakoči → ja: zakočim za probu (sklapati ruke iznad glave)',
     options: [
-      'Zakoči – sklapati ruke iznad glave (proba)',
+      'Zakoči → ja: zakočim za probu (sklapati ruke iznad glave)',
       'Otkoči – polukrug rukom',
       'Stoj manevre – u krug',
       'Polazak',
     ],
   },
   'ur-otkoci': {
-    short: 'Otkoči – polukrug rukom iznad glave',
+    short: 'Otkoči → ja: otkočim / napunim GV (polukrug rukom)',
     options: [
-      'Otkoči – polukrug rukom iznad glave',
+      'Otkoči → ja: otkočim / napunim GV (polukrug rukom)',
       'Zakoči – sklapati ruke',
       'Naprijed',
       'Lagano',
@@ -377,13 +380,16 @@ function shortFromAnswer(answer = '', name = '') {
 }
 
 function shortFromItem(item) {
-  if (item.name && item.kind === 'signal') {
-    const meaning = String(item.answer || '').match(/Što znači:\s*\n?([^\n]+)/i)
-    if (meaning) return `„${item.name}" – ${meaning[1].trim()}`
-    return `Signal „${item.name}"`
+  if (item.kind === 'signal' || item.kind === 'likovni') {
+    return signalQuizShort(item.name || 'Signal', item.answer)
   }
-  if (item.name && item.kind === 'likovni') {
-    return `Likovni „${item.name}"`
+  // Prefer „Što radiš“ ako postoji i u usmenim / pripremi
+  const action = String(item.answer || '').match(/Što radiš:\s*\n?([^\n]+)/i)?.[1]?.trim()
+    || String(item.answer || '').match(/🚂\s*Ti:\s*([^\n]+)/i)?.[1]?.trim()
+  if (action) {
+    const label = item.name ? `${item.name}: ` : ''
+    const a = action.length > 110 ? `${action.slice(0, 107)}…` : action
+    return `${label}${a}`
   }
   return shortFromAnswer(item.answer, item.name)
 }

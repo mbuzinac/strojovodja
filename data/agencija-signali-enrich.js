@@ -6,10 +6,12 @@ export const SIGNAL_MEANINGS = {
   'Stoj': {
     meaning: 'Vožnja od ovog signala je ZABRANJENA.',
     action: 'Zaustavi vlak ispred signala. Ne prolazi bez dozvole (usmena obavijest + znak „naprijed“, ili pisani nalog / RDU prema propisu).',
+    say: '„STOJ – vožnja zabranjena. Stajem ispred signala i ne prolazim bez dozvole.“',
   },
   'Slobodno': {
     meaning: 'Vožnja od ovog signala je SLOBODNA (jednoznačni znak).',
-    action: 'Nastavi vožnju najvećom dopuštenom brzinom (ako signal štiti skretnice u ovisnosti – najvećom dopuštenom; inače slobodno). Gledaj i sljedeće signale / prugu.',
+    action: 'Nastavi vožnju najvećom dopuštenom brzinom; i dalje gledaj prugu i sljedeće signale.',
+    say: '„SLOBODNO – vožnja slobodna. Nastavljam dopuštenom brzinom i pratim sljedeće signale.“',
   },
   'Slobodno, očekuj Slobodno ili Oprezno': {
     meaning: 'Dvoznačni znak: vožnja od signala je slobodna I sljedeći glavni signal pokazuje Slobodno ili Oprezno, očekuj Stoj – brzinu do sljedećeg glavnog ne moraš smanjivati.',
@@ -18,6 +20,7 @@ export const SIGNAL_MEANINGS = {
   'Oprezno, očekuj Stoj': {
     meaning: 'Vožnja od ovog signala je još slobodna, ali sljedeći glavni signal pokazuje STOJ.',
     action: 'Smanji brzinu na vrijeme i zaustavi se ispred sljedećeg glavnog signala.',
+    say: '„Oprezno, očekuj STOJ – još smijem ići, ali sljedeći glavni je STOJ pa na vrijeme stajem ispred njega.“',
   },
   'Slobodno, očekuj ograničenje brzine': {
     meaning: 'Vožnja od signala je slobodna; sljedeći glavni signal očekuje ograničenje brzine.',
@@ -50,10 +53,12 @@ export const SIGNAL_MEANINGS = {
   'Očekuj Stoj': {
     meaning: 'Predsignal: na glavnom signalu ispred tebe očekuj STOJ.',
     action: 'Odmah pripremi kočenje da se možeš zaustaviti ispred glavnog signala. Kod kvara predsignala – postupaš isto kao Očekuj Stoj.',
+    say: '„Očekuj STOJ – predsignal. Pripremam kočenje da stanu ispred glavnog.“',
   },
   'Očekuj Slobodno': {
     meaning: 'Predsignal: na glavnom signalu ispred tebe očekuj Slobodno.',
     action: 'Možeš očekivati slobodnu vožnju, ali ipak potvrdi glavni signal kad ga vidiš.',
+    say: '„Očekuj SLOBODNO – predsignal. Očekujem slobodno, ali potvrđujem glavni kad ga vidim.“',
   },
   'Očekuj ograničenje brzine': {
     meaning: 'Predsignal / ploča: očekuj ograničenje brzine na glavnom ili na početku ograničenja.',
@@ -86,6 +91,7 @@ export const SIGNAL_MEANINGS = {
   'Manevriranje slobodno': {
     meaning: 'Manevarska vožnja od ovog signala je dopuštena.',
     action: 'Smiješ manevrirati, ALI samo ako glavni signal pokazuje STOJ (inače bi ušao u vozni put vlaka).',
+    say: '„Manevriranje slobodno – smijem manevrirati samo dok glavni pokazuje STOJ.“',
   },
   'Granica manevarskih vožnji': {
     meaning: 'Granica do koje smiješ manevrirati u kolodvoru.',
@@ -114,6 +120,7 @@ export const SIGNAL_MEANINGS = {
   'Uređaj na željezničko-cestovnom prijelazu neispravan': {
     meaning: 'Uređaj na ŽCP-u NIJE ispravan.',
     action: 'Postupaj oprezno / prema nalogu: često kočiš da staneš ispred prijelaza, osiguraj prijelaz očima, javi ako treba.',
+    say: '„ŽCP neispravan – kočim da stajem ispred prijelaza, osiguram očima i postupam po nalogu.“',
   },
   'Uključna točka, očekuj kontrolni signal': {
     meaning: 'Odavde gledaš kontrolni signal ŽCP-a.',
@@ -298,6 +305,14 @@ export const SIGNAL_MEANINGS = {
   },
 }
 
+function oralLine(name, meaning, action) {
+  const m = (meaning || '').replace(/\s+/g, ' ').trim()
+  const a = (action || '').replace(/\s+/g, ' ').trim()
+  if (m && a) return `„${name}" znači: ${m} Ja radim: ${a}`
+  if (a) return `„${name}" – ja radim: ${a}`
+  return `„${name}" – ${m || 'objasni znak i postupak.'}`
+}
+
 export function enrichSignal(name, description = '', imgNotes = []) {
   const lower = (name || '').toLowerCase()
   const key = Object.keys(SIGNAL_MEANINGS)
@@ -309,14 +324,36 @@ export function enrichSignal(name, description = '', imgNotes = []) {
   if (description?.trim()) lookParts.push(description.trim())
   if (imgNotes?.length) lookParts.push(imgNotes.join('\n'))
 
+  const meaning = info?.meaning
+    || `Signalni znak „${name}" – zapamti naziv i izgled; postupaš prema tom nalogu / upozorenju.`
+  const action = info?.action
+    || 'Pročitaj znak, primijeni ga odmah, a ako je nejasan – uzmi strože značenje i javi prometniku / TK.'
+
   const lines = [
     `📛 Naziv: „${name}"`,
     '',
     lookParts.length ? `👁 Kako izgleda:\n${lookParts.join('\n')}` : null,
-    info?.meaning ? `\n💡 Što znači:\n${info.meaning}` : `\n💡 Što znači:\nSignalni znak „${name}" – zapamti naziv i izgled; postupaš prema tom nalogu / upozorenju.`,
+    `\n💡 Što znači:\n${meaning}`,
     info?.answerExtra ? `\n${info.answerExtra}` : null,
-    info?.action ? `\n🚂 Što radiš:\n${info.action}` : `\n🚂 Što radiš:\nPročitaj znak, primijeni ga odmah, a ako je nejasan – uzmi strože značenje i javi prometniku / TK.`,
+    `\n🚂 Što radiš:\n${action}`,
+    `\n✅ Usmeno reci:\n${info?.say || oralLine(name, meaning, action)}`,
   ].filter(Boolean)
 
   return lines.join('\n').replace(/\n{3,}/g, '\n\n')
+}
+
+/** Za ABCD kviz – kratki točan odgovor fokusiran na postupak. */
+export function signalQuizShort(name, answerText = '') {
+  const action = String(answerText).match(/Što radiš:\s*\n?([^\n]+)/i)?.[1]?.trim()
+  const meaning = String(answerText).match(/Što znači:\s*\n?([^\n]+)/i)?.[1]?.trim()
+  const label = name || 'Signal'
+  if (action) {
+    const a = action.length > 100 ? `${action.slice(0, 97)}…` : action
+    return `${label}: ${a}`
+  }
+  if (meaning) {
+    const m = meaning.length > 100 ? `${meaning.slice(0, 97)}…` : meaning
+    return `${label}: ${m}`
+  }
+  return `Signal „${label}"`
 }
