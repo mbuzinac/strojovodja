@@ -115,9 +115,9 @@ const hasInlineImages = computed(() => blocks.value.some(b => b.type === 'item' 
 
       <div
         v-else-if="block.type === 'note'"
-        class="rounded-lg border border-cyan-500/20 bg-cyan-500/5 px-4 py-3 overflow-hidden"
+        class="rounded-lg border border-cyan-500/40 bg-cyan-500/10 px-4 py-3 overflow-hidden"
       >
-        <p class="text-sm text-cyan-100/90 leading-relaxed break-words">{{ block.text }}</p>
+        <p class="text-sm font-medium text-cyan-300 leading-relaxed break-words">{{ block.text }}</p>
       </div>
     </template>
   </div>

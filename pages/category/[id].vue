@@ -124,7 +124,7 @@ const catProgress = computed(() => category.value ? getCategory(category.value.i
             </svg>
           </NuxtLink>
           <div class="flex-1 min-w-0">
-            <p class="text-xs text-cyan-400/70">{{ category.icon }} {{ progressPct }}% savladano</p>
+            <p class="text-xs font-medium text-cyan-400">{{ category.icon }} {{ progressPct }}% savladano</p>
             <h1 class="text-lg font-bold text-white truncate">{{ category.title }}</h1>
           </div>
         </div>

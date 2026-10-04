@@ -51,7 +51,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
     <main class="max-w-4xl mx-auto px-4 py-8 pb-16">
       <NuxtLink
         to="/pravilnik"
-        class="group relative block overflow-hidden rounded-2xl border border-cyan-500/40 bg-gradient-to-br from-cyan-950/60 via-slate-900 to-emerald-950/40 p-5 mb-8 hover:border-cyan-400/60 transition-all"
+        class="group relative block overflow-hidden rounded-2xl border-2 border-cyan-500/40 bg-slate-900 p-5 mb-8 hover:border-cyan-400/60 transition-all"
       >
         <div class="absolute -right-6 -top-6 text-[7rem] opacity-10 group-hover:opacity-20 transition-opacity select-none">📕</div>
         <div class="relative flex items-center gap-4">
@@ -73,7 +73,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
 
       <NuxtLink
         to="/agencija"
-        class="group relative block overflow-hidden rounded-2xl border border-amber-500/40 bg-gradient-to-br from-amber-950/50 via-slate-900 to-rose-950/30 p-5 mb-6 hover:border-amber-400/60 transition-all"
+        class="group relative block overflow-hidden rounded-2xl border-2 border-amber-500/40 bg-slate-900 p-5 mb-6 hover:border-amber-400/60 transition-all"
       >
         <div class="absolute -right-4 -top-4 text-[6rem] opacity-10 group-hover:opacity-20 transition-opacity select-none">🎓</div>
         <div class="relative flex items-center gap-4">
@@ -126,7 +126,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
         </NuxtLink>
         <NuxtLink
           to="/igra"
-          class="card-dark p-4 hover:border-amber-500/40 transition-all group flex items-center gap-4 border-amber-500/20 bg-gradient-to-br from-amber-950/20 to-slate-900"
+          class="card-dark p-4 hover:border-amber-500/40 transition-all group flex items-center gap-4 border-amber-500/40"
         >
           <span class="text-3xl group-hover:scale-110 transition-transform">🎮</span>
           <div>
