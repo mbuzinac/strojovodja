@@ -6,9 +6,9 @@ const MAX_SPEED = 120
 // km/h per second at 100% throttle / brake — tuned so a heavy train
 // accelerates and brakes gradually, giving the player time to react
 // and fine-tune speed instead of instantly pinning to max/zero.
-const ACCEL_FULL = 4.5
-const BRAKE_FULL = 9
-const IDLE_FRICTION = 0.3
+const ACCEL_FULL = 5.2
+const BRAKE_FULL = 10
+const IDLE_FRICTION = 0.35
 
 const GAME_SIGNALS = [
   'Stoj',
@@ -238,8 +238,18 @@ export function useLocomotiveGame() {
     return Math.max(0, upcomingStructure.value.atM - distance.value)
   })
 
-  function addMessage(text, type = 'info') {
-    messages.value = [{ text, type, id: Date.now() + Math.random() }, ...messages.value].slice(0, 4)
+  const messageTimers = new Map()
+
+  function addMessage(text, type = 'info', ttlMs = 4500) {
+    const id = Date.now() + Math.random()
+    messages.value = [{ text, type, id }, ...messages.value].slice(0, 3)
+    if (messageTimers.has(id)) clearTimeout(messageTimers.get(id))
+    if (ttlMs > 0) {
+      messageTimers.set(id, setTimeout(() => {
+        messages.value = messages.value.filter(m => m.id !== id)
+        messageTimers.delete(id)
+      }, ttlMs))
+    }
   }
 
   function startGame() {
@@ -258,8 +268,33 @@ export function useLocomotiveGame() {
     quizStep.value = 0
     messages.value = []
     lastViolationAt = 0
-    addMessage('Kreni polako – pazi na signale!', 'info')
+    addMessage('Kreni polako – pazi na signale!', 'info', 3500)
     startTick()
+  }
+
+  function pauseGame() {
+    if (phase.value !== 'playing') return
+    phase.value = 'paused'
+    stopTick()
+    addMessage('⏸ Pauza', 'info', 2000)
+  }
+
+  function resumeGame() {
+    if (phase.value !== 'paused' || activeQuiz.value) return
+    phase.value = 'playing'
+    startTick()
+  }
+
+  function emergencyBrake() {
+    if (phase.value !== 'playing' && phase.value !== 'paused') return
+    if (activeQuiz.value) return
+    setBrake(100)
+    setThrottle(0)
+    if (phase.value === 'paused') {
+      phase.value = 'playing'
+      startTick()
+    }
+    addMessage('🛑 Hitna kočnica!', 'warn', 2500)
   }
 
   function stopTick() {
@@ -454,6 +489,8 @@ export function useLocomotiveGame() {
   onBeforeUnmount(() => {
     stopTick()
     if (hornTimeout) clearTimeout(hornTimeout)
+    for (const t of messageTimers.values()) clearTimeout(t)
+    messageTimers.clear()
   })
 
   return {
@@ -480,6 +517,9 @@ export function useLocomotiveGame() {
     distToStructure,
     messages,
     startGame,
+    pauseGame,
+    resumeGame,
+    emergencyBrake,
     blowHorn,
     setThrottle,
     setBrake,

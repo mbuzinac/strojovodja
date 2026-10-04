@@ -9,7 +9,8 @@ const {
   route, activeQuiz, quizStep, currentSegment, progress,
   upcomingEvent, distToEvent, upcomingSignal, distToSignal,
   upcomingStructure, distToStructure,
-  messages, startGame, blowHorn, setThrottle, setBrake, answerQuiz, skipQuiz,
+  messages, startGame, pauseGame, resumeGame, emergencyBrake,
+  blowHorn, setThrottle, setBrake, answerQuiz, skipQuiz,
 } = game
 
 function playHorn() {
@@ -64,8 +65,9 @@ function tick(ts) {
   if (!el.width || !el.height) { resizeCanvas(); return }
   const dt = Math.min((ts - lastTs) / 1000, 0.1)
   lastTs = ts
-  const spd = (phase.value === 'playing' || phase.value === 'paused') ? speed.value : 30
-  trackPhase = (trackPhase + (spd / 3.6) * dt * 0.032) % 1
+  // Freeze scenery while paused / quiz; gentle idle scroll on menu
+  const spd = phase.value === 'playing' ? speed.value : (phase.value === 'menu' ? 18 : 0)
+  if (spd > 0) trackPhase = (trackPhase + (spd / 3.6) * dt * 0.032) % 1
   const ctx = el.getContext('2d')
   const W = el.width / dpr
   const H = el.height / dpr
@@ -135,49 +137,70 @@ function drawScene(ctx, W, H) {
 function drawSky(ctx, W, H, VPY, seg) {
   const sky = ctx.createLinearGradient(0, 0, 0, VPY)
   if (seg?.type === 'station') {
-    sky.addColorStop(0, '#0a0614')
-    sky.addColorStop(0.55, '#1a1030')
-    sky.addColorStop(1, '#3d2a58')
+    sky.addColorStop(0, '#1a2744')
+    sky.addColorStop(0.5, '#3d4f72')
+    sky.addColorStop(1, '#8a9bb8')
   } else {
-    sky.addColorStop(0, '#020810')
-    sky.addColorStop(0.45, '#0c1e38')
-    sky.addColorStop(1, '#1a4870')
+    // Clear daytime sky – easier to read signals against
+    sky.addColorStop(0, '#4a7ab5')
+    sky.addColorStop(0.4, '#6ea0d4')
+    sky.addColorStop(0.75, '#a8c8e8')
+    sky.addColorStop(1, '#d4e6f5')
   }
   ctx.fillStyle = sky
   ctx.fillRect(0, 0, W, VPY)
 
+  // Soft sun
   if (seg?.type !== 'station') {
-    ctx.fillStyle = 'rgba(255,255,255,0.55)'
-    const seeds = [13, 37, 71, 91, 29, 53, 83, 17, 47, 67, 43, 61, 23, 79, 11, 97, 59, 41]
-    for (let i = 0; i < seeds.length; i++) {
-      const sx = (seeds[i] * 23 + i * 73) % W
-      const sy = (seeds[i] * 11 + i * 31) % (VPY * 0.88)
-      const r = (seeds[i] % 3) * 0.3 + 0.5
-      ctx.beginPath()
-      ctx.arc(sx, sy, r, 0, Math.PI * 2)
-      ctx.fill()
-    }
+    const sx = W * 0.78
+    const sy = VPY * 0.28
+    const glow = ctx.createRadialGradient(sx, sy, 2, sx, sy, 40)
+    glow.addColorStop(0, 'rgba(255,240,180,0.95)')
+    glow.addColorStop(0.35, 'rgba(255,220,120,0.35)')
+    glow.addColorStop(1, 'rgba(255,220,120,0)')
+    ctx.fillStyle = glow
+    ctx.beginPath()
+    ctx.arc(sx, sy, 40, 0, Math.PI * 2)
+    ctx.fill()
   }
 
-  const haze = ctx.createLinearGradient(0, VPY - H * 0.14, 0, VPY)
-  haze.addColorStop(0, 'rgba(140,180,120,0)')
-  haze.addColorStop(1, 'rgba(140,180,120,0.28)')
+  // Parallax clouds
+  ctx.fillStyle = 'rgba(255,255,255,0.55)'
+  for (let i = 0; i < 5; i++) {
+    const drift = ((trackPhase * 18 + i * 40) % (W + 80)) - 40
+    const cy = VPY * (0.18 + (i % 3) * 0.12)
+    const cw = 28 + (i % 3) * 16
+    drawCloud(ctx, drift + i * 55, cy, cw)
+  }
+
+  const haze = ctx.createLinearGradient(0, VPY - H * 0.16, 0, VPY)
+  haze.addColorStop(0, 'rgba(180,200,140,0)')
+  haze.addColorStop(1, 'rgba(160,190,120,0.35)')
   ctx.fillStyle = haze
-  ctx.fillRect(0, VPY - H * 0.14, W, H * 0.14)
+  ctx.fillRect(0, VPY - H * 0.16, W, H * 0.16)
+}
+
+function drawCloud(ctx, x, y, w) {
+  ctx.beginPath()
+  ctx.ellipse(x, y, w * 0.55, w * 0.22, 0, 0, Math.PI * 2)
+  ctx.ellipse(x + w * 0.28, y - w * 0.08, w * 0.35, w * 0.18, 0, 0, Math.PI * 2)
+  ctx.ellipse(x - w * 0.25, y - w * 0.04, w * 0.3, w * 0.15, 0, 0, Math.PI * 2)
+  ctx.fill()
 }
 
 function drawGround(ctx, W, H, VPY, seg) {
   const gnd = ctx.createLinearGradient(0, VPY, 0, H)
   if (seg?.type === 'station') {
-    gnd.addColorStop(0, '#3a2e18')
-    gnd.addColorStop(1, '#141008')
+    gnd.addColorStop(0, '#5a4a30')
+    gnd.addColorStop(1, '#2a2010')
   } else if (seg?.slope === 'up') {
-    gnd.addColorStop(0, '#2d5228')
-    gnd.addColorStop(1, '#152818')
+    gnd.addColorStop(0, '#5a9a48')
+    gnd.addColorStop(0.5, '#3d7032')
+    gnd.addColorStop(1, '#254820')
   } else {
-    gnd.addColorStop(0, '#3a6830')
-    gnd.addColorStop(0.55, '#2a5020')
-    gnd.addColorStop(1, '#142810')
+    gnd.addColorStop(0, '#6aaf55')
+    gnd.addColorStop(0.45, '#4a8a3a')
+    gnd.addColorStop(1, '#2d5a28')
   }
   ctx.fillStyle = gnd
   ctx.fillRect(0, VPY, W, H - VPY)
@@ -185,15 +208,29 @@ function drawGround(ctx, W, H, VPY, seg) {
 
 function drawDistantHills(ctx, W, H, VPY, seg) {
   if (seg?.type === 'station') return
-  ctx.fillStyle = 'rgba(20,45,18,0.55)'
+  const shift = (trackPhase * W * 0.15) % W
+  // Far layer
+  ctx.fillStyle = 'rgba(70,110,80,0.45)'
   ctx.beginPath()
-  ctx.moveTo(0, VPY + 8)
-  for (let x = 0; x <= W; x += W / 8) {
-    const h = 12 + Math.sin(x * 0.018) * 18 + Math.cos(x * 0.009) * 10
+  ctx.moveTo(0, VPY + 10)
+  for (let x = -W; x <= W * 2; x += W / 10) {
+    const h = 18 + Math.sin((x + shift * 0.4) * 0.012) * 22 + Math.cos((x + shift) * 0.007) * 12
     ctx.lineTo(x, VPY + 8 - h)
   }
-  ctx.lineTo(W, VPY + 20)
-  ctx.lineTo(0, VPY + 20)
+  ctx.lineTo(W * 2, VPY + 22)
+  ctx.lineTo(-W, VPY + 22)
+  ctx.closePath()
+  ctx.fill()
+  // Near layer
+  ctx.fillStyle = 'rgba(45,85,50,0.55)'
+  ctx.beginPath()
+  ctx.moveTo(0, VPY + 12)
+  for (let x = -W; x <= W * 2; x += W / 12) {
+    const h = 10 + Math.sin((x - shift * 0.8) * 0.02) * 14 + Math.cos((x - shift) * 0.011) * 8
+    ctx.lineTo(x, VPY + 10 - h)
+  }
+  ctx.lineTo(W * 2, VPY + 24)
+  ctx.lineTo(-W, VPY + 24)
   ctx.closePath()
   ctx.fill()
 }
@@ -215,18 +252,19 @@ function drawTrackLane(ctx, W, H, VPX, VPY, xOff, phase, alpha, electrified, isP
   ctx.fillStyle = bedGrad
   ctx.fill()
 
-  // Ballast gravel speckles
-  for (let i = 0; i < 55; i++) {
-    const raw = (i / 55 + phase * 0.4) % 1
+  // Ballast gravel speckles (fewer = smoother FPS)
+  for (let i = 0; i < 28; i++) {
+    const raw = (i / 28 + phase * 0.4) % 1
     const y = depthY(raw, VPY, H)
     const s = scaleAt(y, VPY, H)
+    if (s < 0.12) continue
     const cx = VPX + xOff + (Math.sin(i * 7.3) * bedHalfAt(y, VPY, H, W) * 0.65)
-    ctx.fillStyle = `rgba(${90 + (i % 5) * 8},${78 + (i % 4) * 6},${52 + (i % 3) * 5},${0.15 + s * 0.35})`
+    ctx.fillStyle = `rgba(${90 + (i % 5) * 8},${78 + (i % 4) * 6},${52 + (i % 3) * 5},${0.18 + s * 0.35})`
     ctx.fillRect(cx, y, 1 + s * 2.5, 1 + s * 1.2)
   }
 
   // Sleepers
-  const N = 28
+  const N = 24
   for (let i = 0; i < N; i++) {
     const raw = (i / N + phase) % 1
     const y = depthY(raw, VPY, H)
@@ -473,14 +511,20 @@ function drawStructureMarker(ctx, W, H, VPX, VPY, distM, kind) {
 
 function drawTree(ctx, x, y, w, h) {
   const s = Math.min(1, h / 80)
-  ctx.fillStyle = `rgba(50,38,20,${s * 0.9})`
-  ctx.fillRect(x - w * 0.12, y - h * 0.26, w * 0.24, h * 0.26)
-  for (const [dy, sc] of [[1, 0.58], [0.62, 0.43]]) {
-    ctx.fillStyle = `rgba(${18 + sc * 10},${55 + sc * 20},${14 + sc * 8},${0.6 + s * 0.35})`
+  ctx.fillStyle = `rgba(70,52,28,${0.55 + s * 0.4})`
+  ctx.fillRect(x - w * 0.1, y - h * 0.28, w * 0.2, h * 0.28)
+  // Layered canopy for depth
+  const layers = [
+    [1.0, 0.55, 34, 92, 42],
+    [0.72, 0.42, 48, 118, 55],
+    [0.48, 0.3, 62, 138, 68],
+  ]
+  for (const [dy, sc, r, g, b] of layers) {
+    ctx.fillStyle = `rgba(${r},${g},${b},${0.55 + s * 0.4})`
     ctx.beginPath()
     ctx.moveTo(x, y - h * dy)
-    ctx.lineTo(x - w * sc, y - h * (dy - 0.3))
-    ctx.lineTo(x + w * sc, y - h * (dy - 0.3))
+    ctx.lineTo(x - w * sc, y - h * (dy - 0.28))
+    ctx.lineTo(x + w * sc, y - h * (dy - 0.28))
     ctx.closePath()
     ctx.fill()
   }
@@ -640,6 +684,12 @@ const trackLabel = computed(() => {
 
 /* ── Keyboard controls ─────────────────────────────── */
 function onKeyDown(e) {
+  if (e.code === 'KeyP') {
+    e.preventDefault()
+    if (phase.value === 'playing') pauseGame()
+    else if (phase.value === 'paused' && !activeQuiz.value) resumeGame()
+    return
+  }
   if (phase.value !== 'playing') return
   if (['ArrowUp', 'KeyW'].includes(e.code)) {
     e.preventDefault()
@@ -650,6 +700,9 @@ function onKeyDown(e) {
   } else if (e.code === 'Space') {
     e.preventDefault()
     playHorn()
+  } else if (e.code === 'KeyB') {
+    e.preventDefault()
+    emergencyBrake()
   }
 }
 
@@ -714,16 +767,17 @@ const speedColor = computed(() => {
         <div class="text-6xl drop-shadow-lg" style="animation: bounce 1.2s infinite alternate">🚂</div>
         <div>
           <h2 class="text-2xl font-bold text-white mb-1 drop-shadow">Vožnja lokomotive</h2>
-          <p class="text-slate-400 text-sm leading-relaxed max-w-sm">
-            Vozi HŽ lokomotivom iz kabine. Dvokolosje, signali, kolodvor – sve kao na pravoj pruzi!
+          <p class="text-slate-200/90 text-sm leading-relaxed max-w-sm">
+            Vozi iz kabine: pazi na signale, brzinu i ŽCP. Točni odgovori na kvizu daju bodove!
           </p>
         </div>
         <div class="flex flex-wrap justify-center gap-2 text-xs">
-          <span class="px-2.5 py-1 rounded-lg bg-black/50 text-slate-300 border border-slate-700/60">🛤 Dvokolosje</span>
-          <span class="px-2.5 py-1 rounded-lg bg-black/50 text-slate-300 border border-slate-700/60">🚦 Signali</span>
-          <span class="px-2.5 py-1 rounded-lg bg-black/50 text-slate-300 border border-slate-700/60">🏭 Kolodvor</span>
-          <span class="px-2.5 py-1 rounded-lg bg-black/50 text-slate-300 border border-slate-700/60">⚡ Elektrifikacija</span>
+          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">🛤 Dvokolosje</span>
+          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">🚦 Signali</span>
+          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">🏭 Kolodvor</span>
+          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">⚡ Elektrifikacija</span>
         </div>
+        <p class="text-[11px] text-slate-300/80">↑↓ gas/kočnica · Space sirena · P pauza · B hitna kočnica</p>
         <button type="button" class="btn-primary text-base px-8 shadow-xl" @click="startGame">
           🎮 Kreni vožnju
         </button>
@@ -741,55 +795,97 @@ const speedColor = computed(() => {
         <button type="button" class="btn-primary px-8 mt-2" @click="startGame">🔄 Još jednom</button>
       </div>
 
+      <!-- PAUSE overlay -->
+      <div
+        v-if="phase === 'paused' && !activeQuiz"
+        class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/55 backdrop-blur-[2px]"
+      >
+        <p class="text-2xl font-bold text-white">⏸ Pauza</p>
+        <button type="button" class="btn-primary px-8" @click="resumeGame">Nastavi</button>
+      </div>
+
       <!-- HUD -->
-      <template v-else>
-        <div class="absolute top-3 left-3 z-10 pointer-events-none">
-          <div v-if="currentSegment" class="bg-black/65 backdrop-blur-sm rounded-xl px-3 py-2 border border-white/5">
+      <template v-if="phase === 'playing' || phase === 'paused'">
+        <div class="absolute top-0 inset-x-0 h-1.5 z-10 pointer-events-none overflow-hidden bg-black/30">
+          <div class="h-full bg-gradient-to-r from-sky-400 via-emerald-400 to-amber-400 transition-all duration-500" :style="{ width: `${progress}%` }" />
+        </div>
+
+        <div class="absolute top-3 left-3 z-10 flex flex-col gap-1.5 max-w-[48%]">
+          <div v-if="currentSegment" class="bg-black/55 backdrop-blur-md rounded-xl px-3 py-2 border border-white/10 pointer-events-none">
             <p class="text-white text-xs font-semibold leading-tight">{{ currentSegment.label }}</p>
-            <p class="text-slate-400 text-[11px]">
+            <p class="text-slate-300/80 text-[11px]">
               max {{ currentSegment.speedLimit }} km/h · {{ trackLabel }}
-              <span v-if="currentSegment.slope === 'up'"> · ⬆ uspon</span>
-              <span v-if="currentSegment.slope === 'down'"> · ⬇ pad</span>
+              <span v-if="currentSegment.slope === 'up'"> · ⬆</span>
+              <span v-if="currentSegment.slope === 'down'"> · ⬇</span>
               <span v-if="currentSegment.electrified"> · ⚡</span>
             </p>
           </div>
+          <!-- Messages: side stack, not covering tracks -->
+          <div class="space-y-1 pointer-events-none">
+            <p
+              v-for="msg in messages.slice(0, 2)"
+              :key="msg.id"
+              class="text-[11px] px-2.5 py-1.5 rounded-lg backdrop-blur-md font-medium shadow-lg"
+              :class="{
+                'bg-emerald-900/80 text-emerald-200 border border-emerald-500/30': msg.type === 'ok',
+                'bg-rose-900/80 text-rose-200 border border-rose-500/30': msg.type === 'bad' || msg.type === 'warn',
+                'bg-amber-900/80 text-amber-100 border border-amber-500/30': msg.type === 'quiz',
+                'bg-slate-900/75 text-slate-200 border border-white/10': msg.type === 'info',
+              }"
+            >{{ msg.text }}</p>
+          </div>
         </div>
 
-        <div class="absolute top-3 right-3 z-10 pointer-events-none flex flex-col items-end gap-1">
-          <div class="bg-black/65 backdrop-blur-sm rounded-xl px-3 py-2 text-right border border-white/5">
-            <p class="text-[10px] text-slate-500 leading-none">Bodovi</p>
-            <p class="text-xl font-bold text-amber-400 leading-tight">{{ score }}</p>
+        <div class="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
+          <div class="bg-black/55 backdrop-blur-md rounded-xl px-3 py-2 text-right border border-white/10 pointer-events-none">
+            <p class="text-[10px] text-slate-400 leading-none">Bodovi</p>
+            <p class="text-xl font-bold text-amber-300 leading-tight tabular-nums">{{ score }}</p>
           </div>
-          <div v-if="streak >= 2" class="bg-amber-950/70 backdrop-blur-sm rounded-lg px-2.5 py-1 border border-amber-500/20">
+          <div v-if="streak >= 2" class="bg-amber-950/70 backdrop-blur-sm rounded-lg px-2.5 py-1 border border-amber-500/25 pointer-events-none">
             <p class="text-sm font-bold text-amber-300">🔥{{ streak }}</p>
           </div>
-        </div>
-
-        <div class="absolute top-0 left-1/4 right-1/4 h-1 z-10 pointer-events-none overflow-hidden">
-          <div class="h-full bg-gradient-to-r from-cyan-500 to-emerald-500 transition-all duration-500" :style="{ width: `${progress}%` }" />
+          <div class="flex gap-1.5 pointer-events-auto">
+            <button
+              v-if="phase === 'playing'"
+              type="button"
+              class="hud-action"
+              title="Pauza (P)"
+              @click="pauseGame"
+            >⏸</button>
+            <button
+              v-else-if="phase === 'paused' && !activeQuiz"
+              type="button"
+              class="hud-action"
+              title="Nastavi (P)"
+              @click="resumeGame"
+            >▶</button>
+            <button
+              type="button"
+              class="hud-action hud-action--danger"
+              title="Hitna kočnica (B)"
+              @click="emergencyBrake"
+            >🛑</button>
+          </div>
         </div>
 
         <div
-          v-if="distToEvent !== null && distToEvent < 200"
-          class="absolute top-14 inset-x-0 z-10 flex justify-center pointer-events-none"
+          v-if="distToSignal !== null && distToSignal < 280"
+          class="absolute top-14 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
         >
-          <div class="bg-amber-950/85 backdrop-blur-sm border border-amber-500/40 rounded-xl px-4 py-1.5 animate-pulse">
-            <p class="text-amber-300 font-semibold text-xs">⚠️ Događaj za {{ Math.round(distToEvent) }} m</p>
+          <div class="bg-sky-950/80 backdrop-blur-md border border-sky-400/35 rounded-full px-3.5 py-1 shadow-lg">
+            <p class="text-sky-200 font-semibold text-[11px] whitespace-nowrap">
+              🚦 Signal · {{ Math.round(distToSignal) }} m
+              <span v-if="upcomingSignal?.signal?.name" class="opacity-80"> · {{ upcomingSignal.signal.name }}</span>
+            </p>
           </div>
         </div>
-
-        <div class="absolute bottom-[22%] inset-x-3 z-10 space-y-1 pointer-events-none">
-          <p
-            v-for="msg in messages.slice(0, 2)"
-            :key="msg.id"
-            class="text-xs px-3 py-1.5 rounded-lg backdrop-blur-sm text-center font-medium"
-            :class="{
-              'bg-emerald-950/85 text-emerald-300': msg.type === 'ok',
-              'bg-rose-950/85 text-rose-300': msg.type === 'bad' || msg.type === 'warn',
-              'bg-amber-950/85 text-amber-200': msg.type === 'quiz',
-              'bg-slate-900/80 text-slate-300': msg.type === 'info',
-            }"
-          >{{ msg.text }}</p>
+        <div
+          v-else-if="distToEvent !== null && distToEvent < 200"
+          class="absolute top-14 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
+        >
+          <div class="bg-amber-950/80 backdrop-blur-md border border-amber-500/40 rounded-full px-3.5 py-1 animate-pulse">
+            <p class="text-amber-200 font-semibold text-[11px]">⚠️ Događaj · {{ Math.round(distToEvent) }} m</p>
+          </div>
         </div>
       </template>
     </div>
@@ -853,12 +949,21 @@ const speedColor = computed(() => {
             </div>
             <p class="text-center text-[10px] text-slate-600">limit {{ currentSegment?.speedLimit || 80 }}</p>
           </div>
-          <button
-            type="button"
-            class="horn-btn w-full py-2 rounded-xl border font-bold text-lg transition-all active:scale-95"
-            :class="horn ? 'horn-btn--active' : ''"
-            @click="playHorn"
-          >📯</button>
+          <div class="flex w-full gap-1.5">
+            <button
+              type="button"
+              class="horn-btn flex-1 py-2 rounded-xl border font-bold text-lg transition-all active:scale-95"
+              :class="horn ? 'horn-btn--active' : ''"
+              title="Sirena (Space)"
+              @click="playHorn"
+            >📯</button>
+            <button
+              type="button"
+              class="eb-btn flex-1 py-2 rounded-xl border font-bold text-xs transition-all active:scale-95"
+              title="Hitna kočnica (B)"
+              @click="emergencyBrake"
+            >🛑 EB</button>
+          </div>
         </div>
 
         <!-- Brake -->
@@ -880,11 +985,11 @@ const speedColor = computed(() => {
         </div>
       </div>
 
-      <div class="console-status px-4 py-2 flex items-center justify-between text-[11px] text-slate-600 border-t border-slate-700/40">
-        <span>Prekršaji: <span class="text-rose-500">{{ violations }}</span></span>
-        <span class="hidden sm:inline text-slate-700">↑↓ gas/koč · Space zvuk</span>
-        <span>{{ Math.round(distance) }} / {{ route?.totalM || 0 }} m</span>
-        <span>Niz: <span class="text-amber-600">{{ streak }}</span></span>
+      <div class="console-status px-3 py-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-slate-500 border-t border-slate-700/40">
+        <span>Prekršaji: <span class="text-rose-400 font-semibold">{{ violations }}</span></span>
+        <span class="hidden sm:inline text-slate-600">↑↓ gas/koč · Space sirena · P pauza · B EB</span>
+        <span class="tabular-nums">{{ Math.round(distance) }} / {{ route?.totalM || 0 }} m</span>
+        <span>Niz: <span class="text-amber-500 font-semibold">{{ streak }}</span></span>
       </div>
     </div>
 
@@ -894,10 +999,36 @@ const speedColor = computed(() => {
 
 <style scoped>
 .cab-viewport {
-  height: min(420px, 58vw);
-  min-height: 300px;
-  background: #060810;
+  height: min(480px, 62vw);
+  min-height: 320px;
+  background: #6ea0d4;
 }
+
+.hud-action {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.55);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  font-size: 14px;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  transition: background 0.15s, transform 0.1s;
+}
+.hud-action:active { transform: scale(0.94); }
+.hud-action:hover { background: rgba(0, 0, 0, 0.75); }
+.hud-action--danger {
+  border-color: rgba(248, 113, 113, 0.45);
+}
+
+.eb-btn {
+  background: linear-gradient(180deg, #3f1212, #1a0808);
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}
+.eb-btn:hover { border-color: #f87171; }
 
 .cab-canvas {
   display: block;

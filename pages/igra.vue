@@ -5,7 +5,7 @@ useHead({ title: 'Play & Fun – Strojovođa' })
 <template>
   <div class="min-h-screen bg-neutral-950 pb-20">
     <header class="sticky top-12 z-40 bg-neutral-950/95 backdrop-blur-md border-b border-slate-800">
-      <div class="max-w-3xl mx-auto px-4 py-4">
+      <div class="max-w-3xl mx-auto px-4 py-3.5">
         <div class="flex items-center gap-3">
           <NuxtLink
             to="/"
@@ -18,7 +18,7 @@ useHead({ title: 'Play & Fun – Strojovođa' })
           </NuxtLink>
           <div class="min-w-0 flex-1">
             <h1 class="text-lg font-bold text-white flex items-center gap-2">
-              <span>🎮</span> Play & Fun
+              <span aria-hidden="true">🎮</span> Play & Fun
             </h1>
             <p class="text-xs text-slate-500">Vožnja lokomotive · signali · kviz uživo</p>
           </div>
@@ -26,7 +26,7 @@ useHead({ title: 'Play & Fun – Strojovođa' })
       </div>
     </header>
 
-    <main class="max-w-3xl mx-auto px-4 py-6">
+    <main class="max-w-3xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
       <LocomotiveGame />
     </main>
   </div>

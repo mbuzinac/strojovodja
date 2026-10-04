@@ -9,6 +9,8 @@ const props = defineProps({
 
 const emit = defineEmits(['zoom', 'mark'])
 
+const { theme } = useTheme()
+const light = computed(() => theme.value === 'light')
 const assetPath = useAssetPath()
 const open = ref(false)
 const show = computed(() => open.value || props.revealAll)
@@ -20,48 +22,68 @@ function onImgError(e) {
 
 <template>
   <article
-    class="overflow-hidden rounded-xl border bg-slate-900/50 transition"
-    :class="status === true
-      ? 'border-emerald-500/25'
-      : status === false
-        ? 'border-rose-500/25'
-        : 'border-slate-800'"
+    class="overflow-hidden rounded-xl border transition"
+    :class="light
+      ? (status === true
+        ? 'border-emerald-600 bg-white shadow-sm'
+        : status === false
+          ? 'border-rose-600 bg-white shadow-sm'
+          : 'border-slate-300 bg-white shadow-sm')
+      : (status === true
+        ? 'border-emerald-500/25 bg-slate-900/50'
+        : status === false
+          ? 'border-rose-500/25 bg-slate-900/50'
+          : 'border-slate-800 bg-slate-900/50')"
   >
     <div class="p-4">
       <div class="mb-2 flex items-start gap-2.5">
         <span
           class="mt-0.5 inline-flex h-7 min-w-[1.75rem] shrink-0 items-center justify-center rounded-lg px-1.5 text-xs font-bold"
           :class="status === true
-            ? 'bg-emerald-500/15 text-emerald-300'
+            ? (light ? 'bg-emerald-100 text-emerald-800' : 'bg-emerald-500/15 text-emerald-300')
             : status === false
-              ? 'bg-rose-500/15 text-rose-300'
-              : 'bg-slate-800 text-cyan-300'"
+              ? (light ? 'bg-rose-100 text-rose-800' : 'bg-rose-500/15 text-rose-300')
+              : (light ? 'bg-cyan-100 text-cyan-900' : 'bg-slate-800 text-cyan-300')"
         >
           {{ num }}
         </span>
         <div class="min-w-0 flex-1">
           <div class="mb-1 flex flex-wrap items-center gap-2">
-            <span v-if="cat" class="text-[10px] text-slate-500">{{ cat.icon }} {{ cat.title }}</span>
-            <span v-if="item.group" class="text-[10px] text-slate-600">· {{ item.group }}</span>
+            <span v-if="cat" class="text-[10px]" :class="light ? 'text-slate-600' : 'text-slate-500'">
+              {{ cat.icon }} {{ cat.title }}
+            </span>
+            <span v-if="item.group" class="text-[10px]" :class="light ? 'text-slate-500' : 'text-slate-600'">
+              · {{ item.group }}
+            </span>
             <span
               v-if="status === true"
-              class="rounded border border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-400"
+              class="rounded border px-1.5 py-0.5 text-[10px]"
+              :class="light ? 'border-emerald-600 bg-emerald-100 text-emerald-800' : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400'"
             >znam</span>
             <span
               v-else-if="status === false"
-              class="rounded border border-rose-500/30 bg-rose-500/15 px-1.5 py-0.5 text-[10px] text-rose-400"
+              class="rounded border px-1.5 py-0.5 text-[10px]"
+              :class="light ? 'border-rose-600 bg-rose-100 text-rose-800' : 'border-rose-500/30 bg-rose-500/15 text-rose-400'"
             >ponovi</span>
           </div>
-          <h3 class="whitespace-pre-line text-sm font-semibold leading-snug text-white">
+          <h3
+            class="whitespace-pre-line text-sm font-semibold leading-snug"
+            :class="light ? 'text-slate-900' : 'text-white'"
+          >
             {{ item.question }}
           </h3>
-          <p v-if="item.name" class="mt-1 text-[11px] text-cyan-400/80">„{{ item.name }}"</p>
+          <p
+            v-if="item.name"
+            class="mt-1 text-[11px]"
+            :class="light ? 'text-cyan-800' : 'text-cyan-400/80'"
+          >„{{ item.name }}"</p>
         </div>
       </div>
 
       <div
         v-if="item.images?.length"
-        class="mt-3 flex flex-wrap justify-center gap-4 rounded-lg border border-cyan-500/15 bg-slate-950/80 px-3 py-4"
+        class="mt-3 flex flex-wrap justify-center gap-4 rounded-lg border px-3 py-4"
+        :class="light ? 'border-cyan-600 bg-slate-50' : 'border-cyan-500/15 bg-slate-950/80'"
       >
         <figure
           v-for="(src, i) in item.images"
@@ -71,7 +93,8 @@ function onImgError(e) {
         >
           <figcaption
             v-if="item.imageLabels?.[i]"
-            class="text-[10px] font-bold uppercase tracking-wider text-amber-400/90"
+            class="text-[10px] font-bold uppercase tracking-wider"
+            :class="light ? 'text-amber-800' : 'text-amber-400/90'"
           >
             {{ item.imageLabels[i] }}
           </figcaption>
@@ -79,10 +102,13 @@ function onImgError(e) {
             :src="assetPath(src)"
             :alt="item.imageLabels?.[i] || item.name || item.question"
             loading="lazy"
-            class="rounded-md bg-white/5 object-contain p-2"
-            :class="item.bigImages
-              ? 'max-h-52 max-w-[200px] sm:max-h-64 sm:max-w-[240px]'
-              : 'max-h-36 max-w-[160px]'"
+            class="rounded-md object-contain p-2"
+            :class="[
+              light ? 'border border-slate-200 bg-white' : 'bg-white/5',
+              item.bigImages
+                ? 'max-h-52 max-w-[200px] sm:max-h-64 sm:max-w-[240px]'
+                : 'max-h-36 max-w-[160px]',
+            ]"
             @error="onImgError"
           />
         </figure>
@@ -91,7 +117,8 @@ function onImgError(e) {
       <button
         v-if="!show"
         type="button"
-        class="mt-3 inline-flex items-center gap-1.5 text-xs font-medium text-cyan-400 hover:text-cyan-300"
+        class="mt-3 inline-flex items-center gap-1.5 text-xs font-semibold"
+        :class="light ? 'text-cyan-800 hover:text-cyan-950' : 'text-cyan-400 hover:text-cyan-300'"
         @click="open = true"
       >
         <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -101,20 +128,29 @@ function onImgError(e) {
         Prikaži odgovor
       </button>
 
-      <div v-else class="mt-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-3 py-2.5">
-        <p class="mb-2 text-[10px] font-bold uppercase tracking-wider text-emerald-400/70">Odgovor</p>
+      <div
+        v-else
+        class="mt-3 rounded-lg border px-3 py-2.5"
+        :class="light ? 'border-emerald-600 bg-emerald-50' : 'border-emerald-500/20 bg-emerald-500/5'"
+      >
+        <p
+          class="mb-2 text-[10px] font-bold uppercase tracking-wider"
+          :class="light ? 'text-emerald-800' : 'text-emerald-400/70'"
+        >Odgovor</p>
         <AgencijaAnswer :text="item.answer" compact />
         <div class="mt-3 flex flex-wrap items-center gap-2">
           <button
             type="button"
-            class="rounded-lg border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-medium text-emerald-300"
+            class="rounded-lg border px-2.5 py-1 text-[11px] font-semibold"
+            :class="light ? 'border-emerald-700 bg-emerald-100 text-emerald-950' : 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300'"
             @click="emit('mark', true)"
           >
             ✓ Znam
           </button>
           <button
             type="button"
-            class="rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1 text-[11px] font-medium text-rose-300"
+            class="rounded-lg border px-2.5 py-1 text-[11px] font-semibold"
+            :class="light ? 'border-rose-700 bg-rose-100 text-rose-950' : 'border-rose-500/30 bg-rose-500/10 text-rose-300'"
             @click="emit('mark', false)"
           >
             ✗ Ponovi
@@ -122,7 +158,8 @@ function onImgError(e) {
           <button
             v-if="!revealAll"
             type="button"
-            class="ml-auto text-[11px] text-slate-500 hover:text-slate-300"
+            class="ml-auto text-[11px]"
+            :class="light ? 'text-slate-600 hover:text-slate-900' : 'text-slate-500 hover:text-slate-300'"
             @click="open = false"
           >
             Sakrij

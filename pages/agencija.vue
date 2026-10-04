@@ -21,6 +21,9 @@ const celebrating = ref(false)
 
 const lightbox = ref({ src: '', label: '' })
 
+const { theme } = useTheme()
+const light = computed(() => theme.value === 'light')
+
 const assetPath = useAssetPath()
 
 function onImgError(e) {
@@ -459,36 +462,65 @@ function onTouchEnd(e) {
         @touchend.passive="onTouchEnd"
       >
         <div
-          class="relative overflow-hidden rounded-2xl border border-slate-700/80 bg-gradient-to-br from-slate-900 via-neutral-950 to-slate-950 shadow-2xl shadow-cyan-950/20 transition-transform"
-          :class="celebrating ? 'scale-[1.01] ring-2 ring-emerald-400/40' : ''"
+          class="relative overflow-hidden rounded-2xl border shadow-lg transition-transform"
+          :class="[
+            celebrating ? 'scale-[1.01] ring-2 ring-emerald-500/50' : '',
+            light
+              ? 'border-slate-300 bg-white shadow-slate-900/10'
+              : 'border-slate-700/80 bg-gradient-to-br from-slate-900 via-neutral-950 to-slate-950 shadow-cyan-950/20',
+          ]"
         >
-          <div class="flex items-center gap-2 border-b border-slate-800/80 px-4 py-3">
+          <div
+            class="flex items-center gap-2 border-b px-4 py-3"
+            :class="light ? 'border-slate-200 bg-slate-50' : 'border-slate-800/80'"
+          >
             <span class="text-lg">{{ catMeta[current.cat]?.icon || '🎓' }}</span>
-            <span class="text-xs text-slate-400">{{ catMeta[current.cat]?.title || 'Sve' }}</span>
+            <span class="text-xs" :class="light ? 'text-slate-600' : 'text-slate-400'">
+              {{ catMeta[current.cat]?.title || 'Sve' }}
+            </span>
             <span
               v-if="known[current.id] === true"
-              class="rounded-md border border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-400"
+              class="rounded-md border px-1.5 py-0.5 text-[10px]"
+              :class="light ? 'border-emerald-600 bg-emerald-100 text-emerald-800' : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400'"
             >znam</span>
             <span
               v-else-if="known[current.id] === false"
-              class="rounded-md border border-rose-500/30 bg-rose-500/15 px-1.5 py-0.5 text-[10px] text-rose-400"
+              class="rounded-md border px-1.5 py-0.5 text-[10px]"
+              :class="light ? 'border-rose-600 bg-rose-100 text-rose-800' : 'border-rose-500/30 bg-rose-500/15 text-rose-400'"
             >ponovi</span>
-            <span class="ml-auto font-mono text-xs text-slate-500">{{ index + 1 }} / {{ total }}</span>
+            <span class="ml-auto font-mono text-xs" :class="light ? 'text-slate-600' : 'text-slate-500'">
+              {{ index + 1 }} / {{ total }}
+            </span>
           </div>
 
-          <div class="p-5 sm:p-7">
-            <p class="mb-1 text-[10px] font-bold uppercase tracking-wider text-amber-500/80">
+          <div class="p-5 sm:p-7" :class="light ? 'bg-white' : ''">
+            <p
+              class="mb-1 text-[10px] font-bold uppercase tracking-wider"
+              :class="light ? 'text-amber-800' : 'text-amber-500/80'"
+            >
               {{ kindLabel }}
             </p>
-            <p v-if="current.name" class="mb-1 text-sm text-cyan-400/90">„{{ current.name }}"</p>
-            <p v-if="current.group" class="mb-2 text-[11px] text-slate-500">{{ current.group }}</p>
-            <h2 class="whitespace-pre-line text-lg font-semibold leading-snug text-white sm:text-xl">
+            <p
+              v-if="current.name"
+              class="mb-1 text-sm"
+              :class="light ? 'text-cyan-800 font-medium' : 'text-cyan-400/90'"
+            >„{{ current.name }}"</p>
+            <p
+              v-if="current.group"
+              class="mb-2 text-[11px]"
+              :class="light ? 'text-slate-600' : 'text-slate-500'"
+            >{{ current.group }}</p>
+            <h2
+              class="whitespace-pre-line text-lg font-semibold leading-snug sm:text-xl"
+              :class="light ? 'text-slate-900' : 'text-white'"
+            >
               {{ current.question }}
             </h2>
 
             <div
               v-if="current.images?.length"
-              class="mt-5 flex flex-wrap justify-center gap-5 rounded-xl border border-cyan-500/20 bg-slate-950/90 px-4 py-6"
+              class="mt-5 flex flex-wrap justify-center gap-5 rounded-xl border px-4 py-6"
+              :class="light ? 'border-cyan-600 bg-slate-50' : 'border-cyan-500/20 bg-slate-950/90'"
             >
               <figure
                 v-for="(src, i) in current.images"
@@ -498,20 +530,27 @@ function onTouchEnd(e) {
               >
                 <figcaption
                   v-if="current.imageLabels?.[i]"
-                  class="text-xs font-bold uppercase tracking-wider text-amber-400"
+                  class="text-xs font-bold uppercase tracking-wider"
+                  :class="light ? 'text-amber-800' : 'text-amber-400'"
                 >
                   {{ current.imageLabels[i] }}
                 </figcaption>
                 <img
                   :src="assetPath(src)"
                   :alt="current.imageLabels?.[i] || current.name || current.question"
-                  class="rounded-md bg-white/5 object-contain p-2 transition group-hover:ring-2 group-hover:ring-cyan-400/40"
-                  :class="current.bigImages
-                    ? 'max-h-64 max-w-[260px] sm:max-h-72 sm:max-w-[280px]'
-                    : 'max-h-52 max-w-[220px]'"
+                  class="rounded-md object-contain p-2 transition group-hover:ring-2 group-hover:ring-cyan-500/50"
+                  :class="[
+                    light ? 'border border-slate-200 bg-white' : 'bg-white/5',
+                    current.bigImages
+                      ? 'max-h-64 max-w-[260px] sm:max-h-72 sm:max-w-[280px]'
+                      : 'max-h-52 max-w-[220px]',
+                  ]"
                   @error="onImgError"
                 />
-                <span class="text-[10px] text-slate-600 opacity-0 transition group-hover:opacity-100">uvećaj</span>
+                <span
+                  class="text-[10px] opacity-0 transition group-hover:opacity-100"
+                  :class="light ? 'text-slate-600' : 'text-slate-600'"
+                >uvećaj</span>
               </figure>
             </div>
 
@@ -519,7 +558,10 @@ function onTouchEnd(e) {
               <button
                 v-if="!revealed"
                 type="button"
-                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-cyan-500/40 bg-cyan-500/15 px-5 py-3.5 text-sm font-semibold text-cyan-200 transition hover:bg-cyan-500/25 sm:w-auto"
+                class="inline-flex w-full items-center justify-center gap-2 rounded-xl border px-5 py-3.5 text-sm font-semibold transition sm:w-auto"
+                :class="light
+                  ? 'border-cyan-700 bg-cyan-50 text-cyan-950 hover:bg-cyan-100'
+                  : 'border-cyan-500/40 bg-cyan-500/15 text-cyan-200 hover:bg-cyan-500/25'"
                 @click="revealed = true"
               >
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -527,14 +569,21 @@ function onTouchEnd(e) {
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
                 Prikaži odgovor
-                <kbd class="ml-1 hidden rounded border border-cyan-500/30 bg-cyan-950/50 px-1.5 py-0.5 text-[10px] font-normal text-cyan-400/80 sm:inline">Space</kbd>
+                <kbd
+                  class="ml-1 hidden rounded border px-1.5 py-0.5 text-[10px] font-normal sm:inline"
+                  :class="light ? 'border-cyan-600 bg-white text-cyan-900' : 'border-cyan-500/30 bg-cyan-950/50 text-cyan-400/80'"
+                >Space</kbd>
               </button>
 
               <div
                 v-else
-                class="animate-in fade-in rounded-xl border border-emerald-500/25 bg-emerald-500/5 px-4 py-4"
+                class="rounded-xl border px-4 py-4"
+                :class="light ? 'border-emerald-600 bg-emerald-50' : 'border-emerald-500/25 bg-emerald-500/5'"
               >
-                <p class="mb-3 text-[10px] font-bold uppercase tracking-wider text-emerald-400/80">Odgovor</p>
+                <p
+                  class="mb-3 text-[10px] font-bold uppercase tracking-wider"
+                  :class="light ? 'text-emerald-800' : 'text-emerald-400/80'"
+                >Odgovor</p>
                 <AgencijaAnswer :text="current.answer" />
               </div>
             </div>
@@ -542,18 +591,25 @@ function onTouchEnd(e) {
 
           <div
             v-if="revealed"
-            class="flex flex-wrap gap-2 border-t border-slate-800 px-4 py-3"
+            class="flex flex-wrap gap-2 border-t px-4 py-3"
+            :class="light ? 'border-slate-200 bg-slate-50' : 'border-slate-800'"
           >
             <button
               type="button"
-              class="min-w-[120px] flex-1 rounded-xl border border-emerald-500/40 bg-emerald-500/15 px-4 py-3 text-sm font-semibold text-emerald-300 transition hover:bg-emerald-500/25"
+              class="min-w-[120px] flex-1 rounded-xl border px-4 py-3 text-sm font-semibold transition"
+              :class="light
+                ? 'border-emerald-700 bg-emerald-100 text-emerald-950 hover:bg-emerald-200'
+                : 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 hover:bg-emerald-500/25'"
               @click="mark(true)"
             >
               ✓ Znam <kbd class="ml-1 hidden text-[10px] opacity-60 sm:inline">1</kbd>
             </button>
             <button
               type="button"
-              class="min-w-[120px] flex-1 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-3 text-sm font-semibold text-rose-300 transition hover:bg-rose-500/20"
+              class="min-w-[120px] flex-1 rounded-xl border px-4 py-3 text-sm font-semibold transition"
+              :class="light
+                ? 'border-rose-700 bg-rose-100 text-rose-950 hover:bg-rose-200'
+                : 'border-rose-500/30 bg-rose-500/10 text-rose-300 hover:bg-rose-500/20'"
               @click="mark(false)"
             >
               ✗ Ponovi <kbd class="ml-1 hidden text-[10px] opacity-60 sm:inline">2</kbd>
@@ -564,13 +620,17 @@ function onTouchEnd(e) {
         <div class="flex items-center justify-between gap-3">
           <button
             type="button"
-            class="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 disabled:opacity-30"
+            class="rounded-xl border px-4 py-2 text-sm font-medium disabled:opacity-30"
+            :class="light ? 'border-slate-400 bg-white text-slate-800' : 'border-slate-700 text-slate-300'"
             :disabled="index === 0"
             @click="prev"
           >
             ← Prethodno
           </button>
-          <div class="h-1.5 max-w-xs flex-1 overflow-hidden rounded-full bg-slate-800">
+          <div
+            class="h-1.5 max-w-xs flex-1 overflow-hidden rounded-full"
+            :class="light ? 'bg-slate-300' : 'bg-slate-800'"
+          >
             <div
               class="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 transition-all duration-300"
               :style="{ width: `${((index + 1) / total) * 100}%` }"
@@ -578,7 +638,8 @@ function onTouchEnd(e) {
           </div>
           <button
             type="button"
-            class="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 disabled:opacity-30"
+            class="rounded-xl border px-4 py-2 text-sm font-medium disabled:opacity-30"
+            :class="light ? 'border-slate-400 bg-white text-slate-800' : 'border-slate-700 text-slate-300'"
             :disabled="index >= total - 1"
             @click="next"
           >
@@ -586,22 +647,28 @@ function onTouchEnd(e) {
           </button>
         </div>
 
-        <p class="text-center text-[11px] text-slate-600">
+        <p class="text-center text-[11px]" :class="light ? 'text-slate-600' : 'text-slate-600'">
           Reci naglas → Space · swipe ←→ · 1 znam · 2 ponovi
         </p>
 
-        <!-- Done celebration -->
         <div
           v-if="knownCount === basePool.length && basePool.length"
-          class="rounded-2xl border border-emerald-500/30 bg-emerald-500/10 px-5 py-6 text-center"
+          class="rounded-2xl border px-5 py-6 text-center"
+          :class="light ? 'border-emerald-600 bg-emerald-50' : 'border-emerald-500/30 bg-emerald-500/10'"
         >
           <p class="text-2xl">🎉</p>
-          <p class="mt-2 text-base font-semibold text-emerald-200">Sve znaš u ovom tabu!</p>
-          <p class="mt-1 text-sm text-emerald-400/70">Idi na sljedeći tab ili vježbaj „Ponovi“.</p>
+          <p
+            class="mt-2 text-base font-semibold"
+            :class="light ? 'text-emerald-900' : 'text-emerald-200'"
+          >Sve znaš u ovom tabu!</p>
+          <p class="mt-1 text-sm" :class="light ? 'text-emerald-800' : 'text-emerald-400/70'">
+            Idi na sljedeći tab ili vježbaj „Ponovi“.
+          </p>
           <button
             v-if="weakCount"
             type="button"
-            class="mt-3 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2 text-sm text-rose-300"
+            class="mt-3 rounded-xl border px-4 py-2 text-sm font-medium"
+            :class="light ? 'border-rose-700 bg-rose-100 text-rose-900' : 'border-rose-500/30 bg-rose-500/10 text-rose-300'"
             @click="jumpToWeak"
           >
             Ponovi slabe ({{ weakCount }})
