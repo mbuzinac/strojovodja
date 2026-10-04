@@ -42,12 +42,19 @@ const oral = computed(() => {
   return { name, meaning, action, say }
 })
 
-watch(chosen, (v) => {
-  // Kod signala odmah otvori detalj – bitan je postupak
-  if (v != null && (props.item?.kind === 'signal' || props.item?.kind === 'likovni' || oral.value)) {
-    showDetail.value = true
-  }
+/** Samo dodatni dijelovi (izgled/napomene) – bez ponavljanja oral bloka */
+const extraAnswer = computed(() => {
+  if (!oral.value) return props.item?.answer || ''
+  const a = String(props.item?.answer || '')
+  const look = a.match(/👁[^\n]*\n?([\s\S]*?)(?=\n\s*💡|\n\s*🚂|\n\s*✅|\n*$)/)?.[1]?.trim()
+  const nameBlock = a.match(/📛[^\n]+/)?.[0]
+  const bits = []
+  if (nameBlock && props.item?.kind === 'signal') bits.push(nameBlock)
+  if (look) bits.push(`👁 Kako izgleda:\n${look}`)
+  return bits.join('\n\n').trim()
 })
+
+const hasExtra = computed(() => extraAnswer.value.length > 20)
 
 watch(() => props.item?.id, () => {
   chosen.value = null
@@ -59,7 +66,8 @@ function pick(i) {
   chosen.value = i
   const ok = i === quiz.value.correctIndex
   emit('mark', ok)
-  if (ok) showDetail.value = true
+  // Ako nema oral kartice, odmah pokaži cijeli odgovor; inače samo oral (bez duplikata)
+  showDetail.value = ok && !oral.value
 }
 
 function optionClass(i) {
@@ -299,27 +307,51 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
             </p>
           </div>
 
-          <button
-            type="button"
-            class="flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition"
-            :class="light
-              ? 'border-cyan-600 bg-cyan-50 text-cyan-900 hover:bg-cyan-100'
-              : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'"
-            @click="showDetail = !showDetail"
-          >
-            <span>{{ showDetail ? 'Sakrij cijeli odgovor' : 'Još detalja (izgled / napomene)' }}</span>
-            <span class="text-xs opacity-70">{{ showDetail ? '▲' : '▼' }}</span>
-          </button>
-
-          <div
-            v-if="showDetail"
-            class="rounded-xl border px-4 py-4"
-            :class="light
-              ? 'border-emerald-600 bg-emerald-50 text-slate-900'
-              : 'border-emerald-500/20 bg-emerald-500/5'"
-          >
-            <AgencijaAnswer :text="item.answer" />
-          </div>
+          <!-- Bez oral kartice: cijeli odgovor. S oral: samo izgled/napomene ako postoje. -->
+          <template v-if="!oral">
+            <button
+              type="button"
+              class="flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition"
+              :class="light
+                ? 'border-cyan-600 bg-cyan-50 text-cyan-900 hover:bg-cyan-100'
+                : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'"
+              @click="showDetail = !showDetail"
+            >
+              <span>{{ showDetail ? 'Sakrij odgovor' : 'Prikaži odgovor' }}</span>
+              <span class="text-xs opacity-70">{{ showDetail ? '▲' : '▼' }}</span>
+            </button>
+            <div
+              v-if="showDetail"
+              class="rounded-xl border px-4 py-4"
+              :class="light
+                ? 'border-emerald-600 bg-emerald-50 text-slate-900'
+                : 'border-emerald-500/20 bg-emerald-500/5'"
+            >
+              <AgencijaAnswer :text="item.answer" />
+            </div>
+          </template>
+          <template v-else-if="hasExtra">
+            <button
+              type="button"
+              class="flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition"
+              :class="light
+                ? 'border-slate-300 bg-white text-slate-700 hover:bg-slate-50'
+                : 'border-slate-700 bg-slate-900/60 text-slate-300 hover:bg-slate-800'"
+              @click="showDetail = !showDetail"
+            >
+              <span>{{ showDetail ? 'Sakrij izgled' : 'Kako izgleda / napomene' }}</span>
+              <span class="text-xs opacity-70">{{ showDetail ? '▲' : '▼' }}</span>
+            </button>
+            <div
+              v-if="showDetail"
+              class="rounded-xl border px-4 py-4"
+              :class="light
+                ? 'border-slate-300 bg-slate-50 text-slate-900'
+                : 'border-slate-700 bg-slate-950/50'"
+            >
+              <AgencijaAnswer :text="extraAnswer" />
+            </div>
+          </template>
         </div>
       </div>
     </div>
