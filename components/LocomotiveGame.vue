@@ -677,11 +677,6 @@ const sigStyle = computed(() => {
   }
 })
 
-const trackLabel = computed(() => {
-  const t = currentSegment.value?.tracks || 1
-  return t >= 2 ? 'Dvokolosje' : 'Jednokolosje'
-})
-
 /* ── Keyboard controls ─────────────────────────────── */
 function onKeyDown(e) {
   if (e.code === 'KeyP') {
@@ -736,10 +731,6 @@ function endDrag() {
   window.removeEventListener('pointercancel', endDrag)
 }
 
-/* ── Speedometer ───────────────────────────────────── */
-const needleRot = computed(() => -90 + (Math.min(speed.value, 120) / 120) * 180)
-const arcDash = computed(() => `${(Math.min(speed.value, 120) / 120) * 173} 173`)
-
 const speedColor = computed(() => {
   const limit = currentSegment.value?.speedLimit || 80
   if (speed.value > limit + 5) return '#f87171'
@@ -749,247 +740,123 @@ const speedColor = computed(() => {
 </script>
 
 <template>
-  <div class="w-full select-none">
-    <!-- Cab viewport -->
-    <div class="cab-viewport relative rounded-2xl overflow-hidden border border-slate-600/60 shadow-2xl shadow-black/50">
-      <canvas ref="sceneEl" class="cab-canvas absolute inset-0 w-full h-full" />
+  <div class="game">
+    <div class="cab">
+      <canvas ref="sceneEl" class="cab__canvas" />
 
-      <!-- Signal close-up (above cab frame) -->
       <div :style="sigStyle">
         <SignalVisual v-if="sigSignalObj" :visual="sigSignalObj.visual" :alt="sigSignalObj.name" :show-badges="false" />
       </div>
 
-      <!-- MENU -->
-      <div
-        v-if="phase === 'menu'"
-        class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center px-6 gap-5 bg-black/50 backdrop-blur-[2px]"
-      >
-        <div class="text-6xl drop-shadow-lg" style="animation: bounce 1.2s infinite alternate">🚂</div>
-        <div>
-          <h2 class="text-2xl font-bold text-white mb-1 drop-shadow">Vožnja lokomotive</h2>
-          <p class="text-slate-200/90 text-sm leading-relaxed max-w-sm">
-            Vozi iz kabine: pazi na signale, brzinu i ŽCP. Točni odgovori na kvizu daju bodove!
-          </p>
-        </div>
-        <div class="flex flex-wrap justify-center gap-2 text-xs">
-          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">🛤 Dvokolosje</span>
-          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">🚦 Signali</span>
-          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">🏭 Kolodvor</span>
-          <span class="px-2.5 py-1 rounded-lg bg-black/45 text-slate-200 border border-white/15">⚡ Elektrifikacija</span>
-        </div>
-        <p class="text-[11px] text-slate-300/80">↑↓ gas/kočnica · Space sirena · P pauza · B hitna kočnica</p>
-        <button type="button" class="btn-primary text-base px-8 shadow-xl" @click="startGame">
-          🎮 Kreni vožnju
-        </button>
+      <!-- Start -->
+      <div v-if="phase === 'menu'" class="overlay">
+        <p class="overlay__emoji">🚂</p>
+        <h2 class="overlay__title">Vožnja lokomotive</h2>
+        <p class="overlay__text">Pazi na signale i brzinu. Točni odgovori daju bodove.</p>
+        <button type="button" class="overlay__btn" @click="startGame">Kreni</button>
       </div>
 
-      <!-- FINISHED -->
-      <div
-        v-else-if="phase === 'finished'"
-        class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center gap-4 bg-black/75 backdrop-blur-sm"
-      >
-        <div class="text-5xl">🏁</div>
-        <h2 class="text-2xl font-bold text-white">Vožnja završena!</h2>
-        <p class="text-4xl font-bold neon-text">{{ score }} bodova</p>
-        <p class="text-slate-400 text-sm">{{ Math.round(distance) }} m · {{ violations }} prekršaja</p>
-        <button type="button" class="btn-primary px-8 mt-2" @click="startGame">🔄 Još jednom</button>
+      <!-- End -->
+      <div v-else-if="phase === 'finished'" class="overlay">
+        <p class="overlay__emoji">🏁</p>
+        <h2 class="overlay__title">Gotovo</h2>
+        <p class="overlay__score">{{ score }} bodova</p>
+        <p class="overlay__text">{{ Math.round(distance) }} m · {{ violations }} prekršaja</p>
+        <button type="button" class="overlay__btn" @click="startGame">Ponovi</button>
       </div>
 
-      <!-- PAUSE overlay -->
-      <div
-        v-if="phase === 'paused' && !activeQuiz"
-        class="absolute inset-0 z-20 flex flex-col items-center justify-center gap-4 bg-black/55 backdrop-blur-[2px]"
-      >
-        <p class="text-2xl font-bold text-white">⏸ Pauza</p>
-        <button type="button" class="btn-primary px-8" @click="resumeGame">Nastavi</button>
+      <!-- Pause -->
+      <div v-else-if="phase === 'paused' && !activeQuiz" class="overlay overlay--soft">
+        <h2 class="overlay__title">Pauza</h2>
+        <button type="button" class="overlay__btn" @click="resumeGame">Nastavi</button>
       </div>
 
-      <!-- HUD -->
+      <!-- Minimal HUD -->
       <template v-if="phase === 'playing' || phase === 'paused'">
-        <div class="absolute top-0 inset-x-0 h-1.5 z-10 pointer-events-none overflow-hidden bg-black/30">
-          <div class="h-full bg-gradient-to-r from-sky-400 via-emerald-400 to-amber-400 transition-all duration-500" :style="{ width: `${progress}%` }" />
+        <div class="progress"><i :style="{ width: `${progress}%` }" /></div>
+
+        <div class="chip chip--left">
+          <strong>{{ currentSegment?.speedLimit || 80 }}</strong>
+          <span>km/h max</span>
         </div>
 
-        <div class="absolute top-3 left-3 z-10 flex flex-col gap-1.5 max-w-[48%]">
-          <div v-if="currentSegment" class="bg-black/55 backdrop-blur-md rounded-xl px-3 py-2 border border-white/10 pointer-events-none">
-            <p class="text-white text-xs font-semibold leading-tight">{{ currentSegment.label }}</p>
-            <p class="text-slate-300/80 text-[11px]">
-              max {{ currentSegment.speedLimit }} km/h · {{ trackLabel }}
-              <span v-if="currentSegment.slope === 'up'"> · ⬆</span>
-              <span v-if="currentSegment.slope === 'down'"> · ⬇</span>
-              <span v-if="currentSegment.electrified"> · ⚡</span>
-            </p>
-          </div>
-          <!-- Messages: side stack, not covering tracks -->
-          <div class="space-y-1 pointer-events-none">
-            <p
-              v-for="msg in messages.slice(0, 2)"
-              :key="msg.id"
-              class="text-[11px] px-2.5 py-1.5 rounded-lg backdrop-blur-md font-medium shadow-lg"
-              :class="{
-                'bg-emerald-900/80 text-emerald-200 border border-emerald-500/30': msg.type === 'ok',
-                'bg-rose-900/80 text-rose-200 border border-rose-500/30': msg.type === 'bad' || msg.type === 'warn',
-                'bg-amber-900/80 text-amber-100 border border-amber-500/30': msg.type === 'quiz',
-                'bg-slate-900/75 text-slate-200 border border-white/10': msg.type === 'info',
-              }"
-            >{{ msg.text }}</p>
-          </div>
+        <div class="chip chip--right">
+          <strong>{{ score }}</strong>
+          <span>bod</span>
+          <button
+            v-if="phase === 'playing'"
+            type="button"
+            class="chip__btn"
+            aria-label="Pauza"
+            @click="pauseGame"
+          >⏸</button>
+          <button
+            v-else
+            type="button"
+            class="chip__btn"
+            aria-label="Nastavi"
+            @click="resumeGame"
+          >▶</button>
         </div>
 
-        <div class="absolute top-3 right-3 z-10 flex flex-col items-end gap-1.5">
-          <div class="bg-black/55 backdrop-blur-md rounded-xl px-3 py-2 text-right border border-white/10 pointer-events-none">
-            <p class="text-[10px] text-slate-400 leading-none">Bodovi</p>
-            <p class="text-xl font-bold text-amber-300 leading-tight tabular-nums">{{ score }}</p>
-          </div>
-          <div v-if="streak >= 2" class="bg-amber-950/70 backdrop-blur-sm rounded-lg px-2.5 py-1 border border-amber-500/25 pointer-events-none">
-            <p class="text-sm font-bold text-amber-300">🔥{{ streak }}</p>
-          </div>
-          <div class="flex gap-1.5 pointer-events-auto">
-            <button
-              v-if="phase === 'playing'"
-              type="button"
-              class="hud-action"
-              title="Pauza (P)"
-              @click="pauseGame"
-            >⏸</button>
-            <button
-              v-else-if="phase === 'paused' && !activeQuiz"
-              type="button"
-              class="hud-action"
-              title="Nastavi (P)"
-              @click="resumeGame"
-            >▶</button>
-            <button
-              type="button"
-              class="hud-action hud-action--danger"
-              title="Hitna kočnica (B)"
-              @click="emergencyBrake"
-            >🛑</button>
-          </div>
+        <div v-if="distToSignal !== null && distToSignal < 280" class="toast">
+          Signal {{ Math.round(distToSignal) }} m
+          <template v-if="upcomingSignal?.signal?.name"> · {{ upcomingSignal.signal.name }}</template>
+        </div>
+        <div v-else-if="distToEvent !== null && distToEvent < 200" class="toast toast--warn">
+          Događaj {{ Math.round(distToEvent) }} m
         </div>
 
-        <div
-          v-if="distToSignal !== null && distToSignal < 280"
-          class="absolute top-14 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
-        >
-          <div class="bg-sky-950/80 backdrop-blur-md border border-sky-400/35 rounded-full px-3.5 py-1 shadow-lg">
-            <p class="text-sky-200 font-semibold text-[11px] whitespace-nowrap">
-              🚦 Signal · {{ Math.round(distToSignal) }} m
-              <span v-if="upcomingSignal?.signal?.name" class="opacity-80"> · {{ upcomingSignal.signal.name }}</span>
-            </p>
-          </div>
-        </div>
-        <div
-          v-else-if="distToEvent !== null && distToEvent < 200"
-          class="absolute top-14 left-1/2 -translate-x-1/2 z-10 pointer-events-none"
-        >
-          <div class="bg-amber-950/80 backdrop-blur-md border border-amber-500/40 rounded-full px-3.5 py-1 animate-pulse">
-            <p class="text-amber-200 font-semibold text-[11px]">⚠️ Događaj · {{ Math.round(distToEvent) }} m</p>
-          </div>
+        <div v-if="messages.length" class="msgs">
+          <p
+            v-for="msg in messages.slice(0, 1)"
+            :key="msg.id"
+            class="msgs__item"
+            :data-type="msg.type"
+          >{{ msg.text }}</p>
         </div>
       </template>
     </div>
 
-    <!-- Driver console (continues cab visually) -->
-    <div
-      v-if="phase === 'playing' || phase === 'paused'"
-      class="driver-console relative -mt-1 rounded-b-2xl border border-t-0 border-slate-600/50 overflow-hidden"
-    >
-      <div class="console-grid grid grid-cols-3 divide-x divide-slate-700/60">
-
-        <!-- Throttle -->
-        <div class="console-panel flex flex-col items-center gap-2 px-3 py-4">
-          <p class="console-label text-emerald-400">GAS</p>
-          <p class="text-[10px] text-emerald-500/70 tabular-nums">{{ throttle }}%</p>
-          <div class="lever-well relative cursor-row-resize touch-none" @pointerdown="startDrag('throttle', $event)">
-            <div class="lever-track" />
-            <div class="lever-fill lever-fill--gas" :style="{ height: `${throttle}%` }" />
-            <div class="lever-knob lever-knob--gas" :style="{ bottom: `calc(${throttle}% - 14px)` }">
-              <span /><span /><span />
-            </div>
+    <!-- Simple controls -->
+    <div v-if="phase === 'playing' || phase === 'paused'" class="dash">
+      <div class="dash__row">
+        <!-- Gas -->
+        <div class="ctrl">
+          <button type="button" class="step step--gas" @click="setThrottle(throttle + 15)">+</button>
+          <div class="bar" @pointerdown="startDrag('throttle', $event)">
+            <div class="bar__fill bar__fill--gas" :style="{ height: `${throttle}%` }" />
           </div>
-          <div class="flex gap-1">
-            <button type="button" class="console-btn console-btn--gas" @click="setThrottle(throttle - 10)">−</button>
-            <button type="button" class="console-btn console-btn--neutral" @click="setThrottle(0)">0</button>
-            <button type="button" class="console-btn console-btn--gas" @click="setThrottle(throttle + 10)">+</button>
-          </div>
+          <button type="button" class="step step--gas" @click="setThrottle(throttle - 15)">−</button>
+          <span class="ctrl__label">Gas {{ throttle }}%</span>
         </div>
 
-        <!-- Speedometer -->
-        <div class="console-panel flex flex-col items-center justify-center gap-2 px-3 py-3">
-          <div class="gauge-bezel w-full max-w-[168px] p-2 rounded-2xl">
-            <svg viewBox="0 0 120 75" class="w-full">
-              <defs>
-                <linearGradient id="spGrd" x1="0%" y1="0%" x2="100%" y2="0%">
-                  <stop offset="0%" stop-color="#34d399" />
-                  <stop offset="55%" stop-color="#fbbf24" />
-                  <stop offset="100%" stop-color="#f87171" />
-                </linearGradient>
-              </defs>
-              <path d="M 7 68 A 53 53 0 0 0 113 68" fill="none" stroke="#0a0c14" stroke-width="12" stroke-linecap="round" />
-              <path d="M 7 68 A 53 53 0 0 0 113 68" fill="none" stroke="#1a2035" stroke-width="10" stroke-linecap="round" />
-              <path d="M 7 68 A 53 53 0 0 0 113 68" fill="none" stroke="url(#spGrd)" stroke-width="8" stroke-linecap="round" :stroke-dasharray="arcDash" />
-              <g v-for="(n, i) in [0, 1, 2, 3, 4]" :key="i">
-                <line
-                  :x1="60 + 47 * Math.cos(Math.PI + (i / 4) * Math.PI)"
-                  :y1="68 - 47 * Math.sin((i / 4) * Math.PI)"
-                  :x2="60 + 39 * Math.cos(Math.PI + (i / 4) * Math.PI)"
-                  :y2="68 - 39 * Math.sin((i / 4) * Math.PI)"
-                  stroke="#475569" stroke-width="1.5"
-                />
-              </g>
-              <g :transform="`rotate(${needleRot}, 60, 68)`">
-                <line x1="60" y1="68" x2="60" y2="20" :stroke="speedColor" stroke-width="2.5" stroke-linecap="round" />
-              </g>
-              <circle cx="60" cy="68" r="6" fill="#0a0c10" stroke="#64748b" stroke-width="1.5" />
-            </svg>
-            <div class="text-center -mt-1">
-              <span class="text-2xl font-bold tabular-nums" :style="{ color: speedColor }">{{ Math.round(speed) }}</span>
-              <span class="text-xs text-slate-500 ml-1">km/h</span>
-            </div>
-            <p class="text-center text-[10px] text-slate-600">limit {{ currentSegment?.speedLimit || 80 }}</p>
-          </div>
-          <div class="flex w-full gap-1.5">
-            <button
-              type="button"
-              class="horn-btn flex-1 py-2 rounded-xl border font-bold text-lg transition-all active:scale-95"
-              :class="horn ? 'horn-btn--active' : ''"
-              title="Sirena (Space)"
-              @click="playHorn"
-            >📯</button>
-            <button
-              type="button"
-              class="eb-btn flex-1 py-2 rounded-xl border font-bold text-xs transition-all active:scale-95"
-              title="Hitna kočnica (B)"
-              @click="emergencyBrake"
-            >🛑 EB</button>
+        <!-- Speed -->
+        <div class="speed">
+          <p class="speed__num" :style="{ color: speedColor }">{{ Math.round(speed) }}</p>
+          <p class="speed__unit">km/h</p>
+          <p class="speed__limit">limit {{ currentSegment?.speedLimit || 80 }}</p>
+          <div class="speed__actions">
+            <button type="button" class="act" :class="{ 'act--on': horn }" @click="playHorn">Sirena</button>
+            <button type="button" class="act act--stop" @click="emergencyBrake">Stop</button>
           </div>
         </div>
 
         <!-- Brake -->
-        <div class="console-panel flex flex-col items-center gap-2 px-3 py-4">
-          <p class="console-label text-rose-400">KOČNICA</p>
-          <p class="text-[10px] text-rose-500/70 tabular-nums">{{ brake }}%</p>
-          <div class="lever-well relative cursor-row-resize touch-none" @pointerdown="startDrag('brake', $event)">
-            <div class="lever-track" />
-            <div class="lever-fill lever-fill--brake" :style="{ height: `${brake}%` }" />
-            <div class="lever-knob lever-knob--brake" :style="{ bottom: `calc(${brake}% - 14px)` }">
-              <span /><span /><span />
-            </div>
+        <div class="ctrl">
+          <button type="button" class="step step--brake" @click="setBrake(brake + 20)">+</button>
+          <div class="bar" @pointerdown="startDrag('brake', $event)">
+            <div class="bar__fill bar__fill--brake" :style="{ height: `${brake}%` }" />
           </div>
-          <div class="flex gap-1">
-            <button type="button" class="console-btn console-btn--brake" @click="setBrake(brake - 15)">−</button>
-            <button type="button" class="console-btn console-btn--neutral" @click="setBrake(0)">0</button>
-            <button type="button" class="console-btn console-btn--brake" @click="setBrake(brake + 15)">+</button>
-          </div>
+          <button type="button" class="step step--brake" @click="setBrake(brake - 20)">−</button>
+          <span class="ctrl__label">Koč {{ brake }}%</span>
         </div>
       </div>
 
-      <div class="console-status px-3 py-2 flex flex-wrap items-center justify-between gap-x-3 gap-y-1 text-[11px] text-slate-500 border-t border-slate-700/40">
-        <span>Prekršaji: <span class="text-rose-400 font-semibold">{{ violations }}</span></span>
-        <span class="hidden sm:inline text-slate-600">↑↓ gas/koč · Space sirena · P pauza · B EB</span>
-        <span class="tabular-nums">{{ Math.round(distance) }} / {{ route?.totalM || 0 }} m</span>
-        <span>Niz: <span class="text-amber-500 font-semibold">{{ streak }}</span></span>
+      <div class="dash__meta">
+        <span>{{ Math.round(distance) }} / {{ route?.totalM || 0 }} m</span>
+        <span>Prekršaji {{ violations }}</span>
+        <span v-if="streak >= 2">Niz {{ streak }}</span>
       </div>
     </div>
 
@@ -998,179 +865,292 @@ const speedColor = computed(() => {
 </template>
 
 <style scoped>
-.cab-viewport {
-  height: min(480px, 62vw);
-  min-height: 320px;
+/* Locked dark cab UI — ignores site light-theme remaps */
+.game {
+  --g-bg: #111318;
+  --g-panel: #1a1d24;
+  --g-line: #2a2f3a;
+  --g-text: #f1f5f9;
+  --g-muted: #94a3b8;
+  --g-gas: #22c55e;
+  --g-brake: #ef4444;
+  --g-accent: #0d9488;
+  width: 100%;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.cab {
+  position: relative;
+  height: min(460px, 58vw);
+  min-height: 280px;
+  border-radius: 16px 16px 0 0;
+  overflow: hidden;
   background: #6ea0d4;
+  border: 1px solid var(--g-line);
+  border-bottom: 0;
 }
 
-.hud-action {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  backdrop-filter: blur(8px);
-  font-size: 14px;
-  line-height: 1;
-  display: grid;
-  place-items: center;
-  transition: background 0.15s, transform 0.1s;
-}
-.hud-action:active { transform: scale(0.94); }
-.hud-action:hover { background: rgba(0, 0, 0, 0.75); }
-.hud-action--danger {
-  border-color: rgba(248, 113, 113, 0.45);
-}
-
-.eb-btn {
-  background: linear-gradient(180deg, #3f1212, #1a0808);
-  border-color: #7f1d1d;
-  color: #fca5a5;
-}
-.eb-btn:hover { border-color: #f87171; }
-
-.cab-canvas {
+.cab__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
 }
 
-@keyframes bounce {
-  from { transform: translateY(0); }
-  to { transform: translateY(-12px); }
+.progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: rgba(0, 0, 0, 0.25);
+  z-index: 5;
+  pointer-events: none;
+}
+.progress i {
+  display: block;
+  height: 100%;
+  background: var(--g-accent);
+  transition: width 0.4s ease;
 }
 
-.driver-console {
-  background: linear-gradient(180deg, #14141e 0%, #0a0a12 40%, #060608 100%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 8px 24px rgba(0,0,0,0.5);
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px;
+  text-align: center;
+  background: rgba(10, 12, 16, 0.78);
+  color: var(--g-text);
 }
-
-.console-panel {
-  background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 100%);
+.overlay--soft { background: rgba(10, 12, 16, 0.6); }
+.overlay__emoji { font-size: 48px; line-height: 1; margin: 0; }
+.overlay__title {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
 }
-
-.console-label {
-  font-size: 10px;
+.overlay__text {
+  margin: 0;
+  max-width: 280px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #cbd5e1;
+}
+.overlay__score {
+  margin: 0;
+  font-size: 2.25rem;
   font-weight: 800;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
+  color: #fbbf24;
 }
-
-.lever-well {
-  height: 112px;
-  width: 44px;
+.overlay__btn {
+  margin-top: 8px;
+  min-width: 160px;
+  padding: 14px 28px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--g-accent);
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 700;
 }
+.overlay__btn:active { transform: scale(0.97); }
 
-.lever-track {
+.chip {
   position: absolute;
-  top: 8px;
-  bottom: 8px;
+  top: 10px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  font-size: 12px;
+}
+.chip--left { left: 10px; }
+.chip--right { right: 10px; }
+.chip strong { font-size: 15px; font-variant-numeric: tabular-nums; }
+.chip span { color: #cbd5e1; }
+.chip__btn {
+  width: 28px;
+  height: 28px;
+  margin-left: 2px;
+  border: 0;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.toast {
+  position: absolute;
+  top: 48px;
   left: 50%;
   transform: translateX(-50%);
-  width: 8px;
+  z-index: 10;
+  max-width: 90%;
+  padding: 6px 12px;
   border-radius: 999px;
-  background: #0a0a10;
-  box-shadow: inset 0 2px 6px rgba(0,0,0,0.8), inset 0 -1px 0 rgba(255,255,255,0.04);
+  background: rgba(0, 0, 0, 0.6);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  pointer-events: none;
+}
+.toast--warn { color: #fde68a; }
+
+.msgs {
+  position: absolute;
+  left: 10px;
+  bottom: 12px;
+  z-index: 10;
+  max-width: 70%;
+  pointer-events: none;
+}
+.msgs__item {
+  margin: 0;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.6);
+  color: #e2e8f0;
+  font-size: 12px;
+  font-weight: 600;
+}
+.msgs__item[data-type='ok'] { color: #86efac; }
+.msgs__item[data-type='bad'],
+.msgs__item[data-type='warn'] { color: #fca5a5; }
+.msgs__item[data-type='quiz'] { color: #fde68a; }
+
+.dash {
+  background: var(--g-bg);
+  border: 1px solid var(--g-line);
+  border-top: 0;
+  border-radius: 0 0 16px 16px;
+  color: var(--g-text);
 }
 
-.lever-fill {
+.dash__row {
+  display: grid;
+  grid-template-columns: 1fr 1.35fr 1fr;
+  gap: 8px;
+  padding: 14px 12px 10px;
+}
+
+.ctrl {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.ctrl__label {
+  font-size: 11px;
+  color: var(--g-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.step {
+  width: 48px;
+  height: 40px;
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  background: var(--g-panel);
+  color: var(--g-text);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+}
+.step:active { transform: scale(0.96); }
+.step--gas { color: var(--g-gas); border-color: rgba(34, 197, 94, 0.35); }
+.step--brake { color: var(--g-brake); border-color: rgba(239, 68, 68, 0.35); }
+
+.bar {
+  position: relative;
+  width: 28px;
+  height: 88px;
+  border-radius: 14px;
+  background: #0a0c10;
+  border: 1px solid var(--g-line);
+  overflow: hidden;
+  touch-action: none;
+  cursor: ns-resize;
+}
+.bar__fill {
   position: absolute;
-  bottom: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 8px;
-  border-radius: 999px;
+  left: 0;
+  right: 0;
+  bottom: 0;
   transition: height 50ms linear;
 }
+.bar__fill--gas { background: var(--g-gas); }
+.bar__fill--brake { background: var(--g-brake); }
 
-.lever-fill--gas {
-  background: linear-gradient(to top, #059669, #34d399);
-  box-shadow: 0 0 8px rgba(52,211,153,0.3);
-}
-
-.lever-fill--brake {
-  background: linear-gradient(to top, #b91c1c, #f87171);
-  box-shadow: 0 0 8px rgba(248,113,113,0.3);
-}
-
-.lever-knob {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 36px;
-  height: 28px;
-  border-radius: 8px;
-  transition: bottom 50ms linear;
-  pointer-events: none;
+.speed {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 2px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.1);
+  padding: 4px 0;
 }
+.speed__num {
+  margin: 0;
+  font-size: clamp(2.4rem, 9vw, 3.2rem);
+  font-weight: 800;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.speed__unit {
+  margin: 0;
+  font-size: 12px;
+  color: var(--g-muted);
+}
+.speed__limit {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #64748b;
+}
+.speed__actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  width: 100%;
+  max-width: 180px;
+}
+.act {
+  padding: 10px 8px;
+  border: 1px solid var(--g-line);
+  border-radius: 10px;
+  background: var(--g-panel);
+  color: var(--g-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.act:active { transform: scale(0.96); }
+.act--on { background: #422006; border-color: #b45309; color: #fbbf24; }
+.act--stop { background: #3f1212; border-color: #991b1b; color: #fca5a5; }
 
-.lever-knob span {
-  display: block;
-  width: 14px;
-  height: 2px;
-  border-radius: 1px;
-  opacity: 0.5;
-}
-
-.lever-knob--gas {
-  background: linear-gradient(145deg, #064e3b, #065f46);
-  border: 2px solid rgba(52,211,153,0.5);
-}
-.lever-knob--gas span { background: rgba(52,211,153,0.6); }
-
-.lever-knob--brake {
-  background: linear-gradient(145deg, #450a0a, #7f1d1d);
-  border: 2px solid rgba(248,113,113,0.5);
-}
-.lever-knob--brake span { background: rgba(248,113,113,0.6); }
-
-.gauge-bezel {
-  background: radial-gradient(ellipse at 50% 80%, #1a1a24 0%, #0a0a10 70%);
-  border: 2px solid #2a2a38;
-  box-shadow: inset 0 2px 8px rgba(0,0,0,0.7), 0 2px 0 rgba(255,255,255,0.04);
-}
-
-.horn-btn {
-  background: linear-gradient(180deg, #1a1408 0%, #0f0c06 100%);
-  border-color: rgba(180,130,40,0.25);
-  color: #b8860b;
-}
-.horn-btn--active {
-  background: rgba(245,158,11,0.25);
-  border-color: rgba(245,158,11,0.6);
-  transform: scale(1.03);
-}
-
-.console-btn {
-  padding: 4px 8px;
-  font-size: 11px;
-  border-radius: 8px;
-  border: 1px solid;
-  transition: transform 0.1s;
-}
-.console-btn:active { transform: scale(0.95); }
-.console-btn--gas {
-  background: rgba(6,78,59,0.35);
-  border-color: rgba(16,185,129,0.25);
-  color: #34d399;
-}
-.console-btn--brake {
-  background: rgba(69,10,10,0.35);
-  border-color: rgba(220,38,38,0.25);
-  color: #f87171;
-}
-.console-btn--neutral {
-  background: #1e293b;
-  border-color: #334155;
-  color: #94a3b8;
-}
-
-.console-status {
-  background: rgba(0,0,0,0.35);
+.dash__meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 14px 12px;
+  font-size: 12px;
+  color: var(--g-muted);
+  font-variant-numeric: tabular-nums;
+  border-top: 1px solid var(--g-line);
 }
 </style>

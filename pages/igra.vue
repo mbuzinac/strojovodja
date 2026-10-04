@@ -20,7 +20,7 @@ useHead({ title: 'Play & Fun – Strojovođa' })
             <h1 class="text-lg font-bold text-white flex items-center gap-2">
               <span aria-hidden="true">🎮</span> Play & Fun
             </h1>
-            <p class="text-xs text-slate-500">Vožnja lokomotive · signali · kviz uživo</p>
+            <p class="text-xs text-slate-500">Vožnja · signali · kviz</p>
           </div>
         </div>
       </div>
