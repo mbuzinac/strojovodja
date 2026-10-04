@@ -274,7 +274,8 @@ function onTouchEnd(e) {
               {{ mode === 'kviz' ? 'A–D odgovori' : 'Space = odgovor' }}
             </p>
           </div>
-          <div class="flex shrink-0 gap-1">
+          <div class="flex shrink-0 items-center gap-1">
+            <ThemeToggle />
             <button
               type="button"
               class="rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"

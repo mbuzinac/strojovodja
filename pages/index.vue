@@ -19,6 +19,7 @@ const totalSignals = computed(() => railwayData.reduce((s, c) => s + (c.signals?
           <span class="px-3 py-1 text-xs font-semibold rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/30">
             PWA · Offline
           </span>
+          <ThemeToggle class="ml-auto" />
         </div>
         <h1 class="text-3xl sm:text-4xl font-bold text-white mb-3 leading-tight">
           Prometni i signalni

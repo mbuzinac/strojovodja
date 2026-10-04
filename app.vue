@@ -1,5 +1,13 @@
+<script setup>
+const { theme, initTheme } = useTheme()
+onMounted(() => initTheme())
+</script>
+
 <template>
-  <div class="min-h-screen bg-neutral-950">
+  <div
+    class="min-h-screen transition-colors duration-200"
+    :class="theme === 'light' ? 'bg-slate-100' : 'bg-neutral-950'"
+  >
     <NuxtPage />
   </div>
 </template>
