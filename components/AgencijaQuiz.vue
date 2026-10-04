@@ -12,8 +12,11 @@ const props = defineProps({
 
 const emit = defineEmits(['mark', 'next', 'prev', 'zoom'])
 
+const { theme } = useTheme()
+const light = computed(() => theme.value === 'light')
+
 const assetPath = useAssetPath()
-const chosen = ref(null) // index
+const chosen = ref(null)
 const showDetail = ref(false)
 
 const quiz = computed(() => buildQuizForItem(props.item, props.pool))
@@ -33,22 +36,45 @@ function pick(i) {
   chosen.value = i
   const ok = i === quiz.value.correctIndex
   emit('mark', ok)
-  // auto-open detail on correct; on wrong keep collapsed until click
   if (ok) showDetail.value = true
 }
 
 function optionClass(i) {
   if (chosen.value == null) {
-    return 'border-slate-600 bg-slate-900/80 text-slate-100 hover:border-amber-400/50 hover:bg-slate-800'
+    return light.value
+      ? 'border-slate-300 bg-white text-slate-900 hover:border-amber-500 hover:bg-amber-50 shadow-sm'
+      : 'border-slate-600 bg-slate-900/80 text-slate-100 hover:border-amber-400/50 hover:bg-slate-800'
   }
   const correct = quiz.value?.correctIndex
   if (i === correct) {
-    return 'border-emerald-400/70 bg-emerald-500/20 text-emerald-50 ring-2 ring-emerald-400/40'
+    return light.value
+      ? 'border-emerald-600 bg-emerald-50 text-emerald-950 ring-2 ring-emerald-500/50'
+      : 'border-emerald-400/70 bg-emerald-500/20 text-emerald-50 ring-2 ring-emerald-400/40'
   }
   if (i === chosen.value && i !== correct) {
-    return 'border-rose-400/70 bg-rose-500/20 text-rose-100'
+    return light.value
+      ? 'border-rose-600 bg-rose-50 text-rose-950 ring-2 ring-rose-400/40'
+      : 'border-rose-400/70 bg-rose-500/20 text-rose-100'
   }
-  return 'border-slate-800 bg-slate-950/50 text-slate-500 opacity-50'
+  return light.value
+    ? 'border-slate-200 bg-slate-50 text-slate-500'
+    : 'border-slate-800 bg-slate-950/50 text-slate-500 opacity-50'
+}
+
+function letterClass(i) {
+  if (chosen.value != null && i === quiz.value?.correctIndex) {
+    return light.value
+      ? 'bg-emerald-600 text-white'
+      : 'bg-emerald-400 text-emerald-950'
+  }
+  if (chosen.value === i && i !== quiz.value?.correctIndex) {
+    return light.value
+      ? 'bg-rose-600 text-white'
+      : 'bg-rose-400 text-rose-950'
+  }
+  return light.value
+    ? 'bg-amber-100 text-amber-900 border border-amber-300'
+    : 'bg-amber-500/20 text-amber-300'
 }
 
 function onImgError(e) {
@@ -77,37 +103,64 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4 quiz-root" :data-quiz-theme="theme">
     <div
-      class="overflow-hidden rounded-2xl border border-amber-500/20 bg-gradient-to-br from-slate-900 via-neutral-950 to-amber-950/20 shadow-2xl shadow-amber-950/30"
+      class="overflow-hidden rounded-2xl border shadow-lg"
+      :class="light
+        ? 'border-amber-400 bg-white shadow-amber-900/10'
+        : 'border-amber-500/20 bg-gradient-to-br from-slate-900 via-neutral-950 to-amber-950/20 shadow-amber-950/30'"
     >
-      <!-- header -->
-      <div class="flex items-center gap-2 border-b border-slate-800/80 px-4 py-3">
+      <div
+        class="flex items-center gap-2 border-b px-4 py-3"
+        :class="light ? 'border-slate-200 bg-amber-50' : 'border-slate-800/80'"
+      >
         <span class="text-lg">💰</span>
-        <span class="text-xs font-semibold uppercase tracking-wider text-amber-400/90">Milijunaš</span>
-        <span v-if="cat" class="text-xs text-slate-500">· {{ cat.icon }} {{ cat.title }}</span>
+        <span
+          class="text-xs font-semibold uppercase tracking-wider"
+          :class="light ? 'text-amber-800' : 'text-amber-400/90'"
+        >Milijunaš</span>
+        <span v-if="cat" class="text-xs" :class="light ? 'text-slate-600' : 'text-slate-500'">
+          · {{ cat.icon }} {{ cat.title }}
+        </span>
         <span
           v-if="status === true"
-          class="rounded-md border border-emerald-500/30 bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-400"
+          class="rounded-md border px-1.5 py-0.5 text-[10px]"
+          :class="light
+            ? 'border-emerald-600 bg-emerald-100 text-emerald-800'
+            : 'border-emerald-500/30 bg-emerald-500/15 text-emerald-400'"
         >znam</span>
         <span
           v-else-if="status === false"
-          class="rounded-md border border-rose-500/30 bg-rose-500/15 px-1.5 py-0.5 text-[10px] text-rose-400"
+          class="rounded-md border px-1.5 py-0.5 text-[10px]"
+          :class="light
+            ? 'border-rose-600 bg-rose-100 text-rose-800'
+            : 'border-rose-500/30 bg-rose-500/15 text-rose-400'"
         >ponovi</span>
-        <span class="ml-auto font-mono text-xs text-slate-500">{{ num }} / {{ total }}</span>
+        <span class="ml-auto font-mono text-xs" :class="light ? 'text-slate-600' : 'text-slate-500'">
+          {{ num }} / {{ total }}
+        </span>
       </div>
 
-      <div class="p-5 sm:p-7">
-        <p v-if="item.group" class="mb-1 text-[11px] text-slate-500">{{ item.group }}</p>
-        <p v-if="item.name" class="mb-1 text-sm text-cyan-400/90">„{{ item.name }}"</p>
-        <h2 class="whitespace-pre-line text-lg font-semibold leading-snug text-white sm:text-xl">
+      <div class="p-5 sm:p-7" :class="light ? 'bg-white' : ''">
+        <p v-if="item.group" class="mb-1 text-[11px]" :class="light ? 'text-slate-600' : 'text-slate-500'">
+          {{ item.group }}
+        </p>
+        <p
+          v-if="item.name"
+          class="mb-1 text-sm"
+          :class="light ? 'text-cyan-800 font-medium' : 'text-cyan-400/90'"
+        >„{{ item.name }}"</p>
+        <h2
+          class="whitespace-pre-line text-lg font-semibold leading-snug sm:text-xl"
+          :class="light ? 'text-slate-900' : 'text-white'"
+        >
           {{ item.question }}
         </h2>
 
-        <!-- images -->
         <div
           v-if="item.images?.length"
-          class="mt-5 flex flex-wrap justify-center gap-4 rounded-xl border border-amber-500/15 bg-slate-950/80 px-4 py-5"
+          class="mt-5 flex flex-wrap justify-center gap-4 rounded-xl border px-4 py-5"
+          :class="light ? 'border-amber-300 bg-slate-50' : 'border-amber-500/15 bg-slate-950/80'"
         >
           <figure
             v-for="(src, i) in item.images"
@@ -117,14 +170,16 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
           >
             <figcaption
               v-if="item.imageLabels?.[i]"
-              class="text-[10px] font-bold uppercase tracking-wider text-amber-400"
+              class="text-[10px] font-bold uppercase tracking-wider"
+              :class="light ? 'text-amber-800' : 'text-amber-400'"
             >
               {{ item.imageLabels[i] }}
             </figcaption>
             <img
               :src="assetPath(src)"
               :alt="item.imageLabels?.[i] || item.name || ''"
-              class="max-h-44 max-w-[180px] rounded-md bg-white/5 object-contain p-2 sm:max-h-56 sm:max-w-[220px]"
+              class="max-h-44 max-w-[180px] rounded-md object-contain p-2 sm:max-h-56 sm:max-w-[220px]"
+              :class="light ? 'bg-white border border-slate-200' : 'bg-white/5'"
               @error="onImgError"
             />
           </figure>
@@ -132,55 +187,61 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
         <p
           v-if="!quiz"
-          class="mt-6 rounded-xl border border-slate-700 bg-slate-900/60 px-4 py-3 text-sm text-slate-400"
+          class="mt-6 rounded-xl border px-4 py-3 text-sm"
+          :class="light ? 'border-slate-300 bg-slate-50 text-slate-700' : 'border-slate-700 bg-slate-900/60 text-slate-400'"
         >
           Za ovo pitanje nema 4 ponuđena odgovora — prebaci na način Kartica.
         </p>
 
-        <!-- A B C D -->
         <div v-else class="mt-6 grid gap-3">
           <button
             v-for="(opt, i) in quiz.options"
             :key="i"
             type="button"
-            class="flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left text-sm transition-all disabled:cursor-default"
+            class="flex w-full items-start gap-3 rounded-xl border px-4 py-3.5 text-left text-sm font-medium transition-all disabled:cursor-default"
             :class="optionClass(i)"
             :disabled="chosen != null"
             @click="pick(i)"
           >
             <span
               class="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg text-xs font-bold"
-              :class="chosen != null && i === quiz.correctIndex
-                ? 'bg-emerald-400 text-emerald-950'
-                : chosen === i && i !== quiz.correctIndex
-                  ? 'bg-rose-400 text-rose-950'
-                  : 'bg-amber-500/20 text-amber-300'"
+              :class="letterClass(i)"
             >{{ letters[i] }}</span>
             <span class="flex-1 leading-snug pt-0.5">{{ opt }}</span>
-            <span v-if="chosen != null && i === quiz.correctIndex" class="shrink-0 text-emerald-300">✓</span>
-            <span v-else-if="chosen === i" class="shrink-0 text-rose-300">✗</span>
+            <span
+              v-if="chosen != null && i === quiz.correctIndex"
+              class="shrink-0"
+              :class="light ? 'text-emerald-700' : 'text-emerald-300'"
+            >✓</span>
+            <span
+              v-else-if="chosen === i"
+              class="shrink-0"
+              :class="light ? 'text-rose-700' : 'text-rose-300'"
+            >✗</span>
           </button>
         </div>
 
-        <!-- feedback -->
         <div v-if="chosen != null && quiz" class="mt-5 space-y-3">
           <div
             class="rounded-xl border px-4 py-3 text-sm font-semibold"
             :class="isCorrect
-              ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-200'
-              : 'border-rose-500/40 bg-rose-500/15 text-rose-200'"
+              ? (light ? 'border-emerald-600 bg-emerald-50 text-emerald-900' : 'border-emerald-500/40 bg-emerald-500/15 text-emerald-200')
+              : (light ? 'border-rose-600 bg-rose-50 text-rose-900' : 'border-rose-500/40 bg-rose-500/15 text-rose-200')"
           >
             <template v-if="isCorrect">Točno! 🎉</template>
             <template v-else>
               Netočno. Točno je
-              <span class="text-emerald-300">{{ letters[quiz.correctIndex] }}</span>
+              <span :class="light ? 'text-emerald-800' : 'text-emerald-300'">{{ letters[quiz.correctIndex] }}</span>
               — {{ quiz.options[quiz.correctIndex] }}
             </template>
           </div>
 
           <button
             type="button"
-            class="flex w-full items-center justify-between rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-200 transition hover:bg-cyan-500/20"
+            class="flex w-full items-center justify-between rounded-xl border px-4 py-3 text-sm font-medium transition"
+            :class="light
+              ? 'border-cyan-600 bg-cyan-50 text-cyan-900 hover:bg-cyan-100'
+              : 'border-cyan-500/30 bg-cyan-500/10 text-cyan-200 hover:bg-cyan-500/20'"
             @click="showDetail = !showDetail"
           >
             <span>{{ showDetail ? 'Sakrij detaljan odgovor' : 'Prikaži cijeli odgovor / objašnjenje' }}</span>
@@ -189,9 +250,15 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
 
           <div
             v-if="showDetail"
-            class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-4"
+            class="rounded-xl border px-4 py-4"
+            :class="light
+              ? 'border-emerald-600 bg-emerald-50 text-slate-900'
+              : 'border-emerald-500/20 bg-emerald-500/5'"
           >
-            <p class="mb-2 text-[10px] font-bold uppercase tracking-wider text-emerald-400/80">Detaljno</p>
+            <p
+              class="mb-2 text-[10px] font-bold uppercase tracking-wider"
+              :class="light ? 'text-emerald-800' : 'text-emerald-400/80'"
+            >Detaljno</p>
             <AgencijaAnswer :text="item.answer" />
           </div>
         </div>
@@ -201,7 +268,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
     <div class="flex items-center justify-between gap-3">
       <button
         type="button"
-        class="rounded-xl border border-slate-700 px-4 py-2 text-sm text-slate-300 disabled:opacity-30"
+        class="rounded-xl border px-4 py-2 text-sm font-medium disabled:opacity-30"
+        :class="light
+          ? 'border-slate-400 bg-white text-slate-800'
+          : 'border-slate-700 text-slate-300'"
         :disabled="num <= 1"
         @click="emit('prev')"
       >
@@ -209,7 +279,10 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </button>
       <button
         type="button"
-        class="rounded-xl border border-amber-500/40 bg-amber-500/15 px-4 py-2 text-sm font-semibold text-amber-200 disabled:opacity-30"
+        class="rounded-xl border px-4 py-2 text-sm font-semibold disabled:opacity-30"
+        :class="light
+          ? 'border-amber-600 bg-amber-100 text-amber-950'
+          : 'border-amber-500/40 bg-amber-500/15 text-amber-200'"
         :disabled="num >= total"
         @click="emit('next')"
       >
@@ -217,7 +290,7 @@ onBeforeUnmount(() => window.removeEventListener('keydown', onKey))
       </button>
     </div>
 
-    <p class="text-center text-[11px] text-slate-600">
+    <p class="text-center text-[11px]" :class="light ? 'text-slate-600' : 'text-slate-600'">
       Tipke A–D ili 1–4 · Enter = detalj / dalje
     </p>
   </div>
