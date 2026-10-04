@@ -253,7 +253,7 @@ function onTouchEnd(e) {
 
 <template>
   <div class="min-h-screen bg-neutral-950 pb-28">
-    <header class="sticky top-0 z-30 border-b border-slate-800/80 bg-neutral-950/90 backdrop-blur-xl">
+    <header class="sticky top-12 z-40 border-b border-slate-800/80 bg-neutral-950/90 backdrop-blur-xl">
       <div class="mx-auto max-w-3xl px-4 py-3">
         <div class="mb-3 flex items-center gap-3">
           <NuxtLink
@@ -275,7 +275,6 @@ function onTouchEnd(e) {
             </p>
           </div>
           <div class="flex shrink-0 items-center gap-1">
-            <ThemeToggle />
             <button
               type="button"
               class="rounded-lg border px-2 py-1.5 text-xs font-medium transition-colors"

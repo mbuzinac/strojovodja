@@ -8,6 +8,8 @@ onMounted(() => initTheme())
     class="min-h-screen transition-colors duration-200"
     :class="theme === 'light' ? 'bg-slate-100' : 'bg-neutral-950'"
   >
-    <NuxtPage />
+    <NuxtLayout>
+      <NuxtPage />
+    </NuxtLayout>
   </div>
 </template>

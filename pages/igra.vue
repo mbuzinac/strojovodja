@@ -4,7 +4,7 @@ useHead({ title: 'Play & Fun – Strojovođa' })
 
 <template>
   <div class="min-h-screen bg-neutral-950 pb-20">
-    <header class="sticky top-0 z-30 bg-neutral-950/95 backdrop-blur-md border-b border-slate-800">
+    <header class="sticky top-12 z-40 bg-neutral-950/95 backdrop-blur-md border-b border-slate-800">
       <div class="max-w-3xl mx-auto px-4 py-4">
         <div class="flex items-center gap-3">
           <NuxtLink

@@ -316,6 +316,11 @@
   background-color: #ffffff !important;
 }
 
+[data-theme="light"] .app-topbar {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-bottom-color: #94a3b8 !important;
+}
+
 [data-theme="light"] .theme-btn {
   background-color: #ffffff !important;
   border-color: #64748b !important;

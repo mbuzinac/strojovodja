@@ -115,7 +115,7 @@ const catProgress = computed(() => category.value ? getCategory(category.value.i
 
 <template>
   <div v-if="category" class="min-h-screen bg-neutral-950 pb-28">
-    <header class="sticky top-0 z-30 bg-neutral-950/95 backdrop-blur-md border-b border-slate-800">
+    <header class="sticky top-12 z-40 bg-neutral-950/95 backdrop-blur-md border-b border-slate-800">
       <div class="max-w-4xl mx-auto px-4 py-3">
         <div class="flex items-center gap-3 mb-3">
           <NuxtLink to="/" class="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" aria-label="Natrag">
