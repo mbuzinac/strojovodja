@@ -123,7 +123,8 @@ function onKey(e) {
   if (e.key === 'Enter' || e.key === ' ') {
     if (chosen.value != null) {
       e.preventDefault()
-      if (!showDetail.value) showDetail.value = true
+      if (hasExtra.value && !showDetail.value) showDetail.value = true
+      else if (!oral.value && !showDetail.value) showDetail.value = true
       else emit('next')
     }
   }
