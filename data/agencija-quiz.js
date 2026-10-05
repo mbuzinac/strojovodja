@@ -343,6 +343,224 @@ export const QUIZ_BANK = {
       'Lagano',
     ],
   },
+
+  // SE · Probe · Prometni (brzi tab)
+  'br-se-lista': {
+    short: 'SE-1…SE-5; prvo SE-2 (sastav i kočenje)',
+    options: [
+      'SE-1…SE-5; prvo SE-2 (sastav i kočenje)',
+      'Samo SE-1 i SE-3',
+      'SE-2 je dozvola ASZ',
+      'SE-5 se prvo ispunjava',
+    ],
+  },
+  'br-se1': {
+    short: 'SE-1 = nalog za vožnju (broj/relacija, obavijesti, zapovijedi, prilozi)',
+    options: [
+      'SE-1 = nalog za vožnju (broj/relacija, obavijesti, zapovijedi, prilozi)',
+      'SE-1 = pisani nalog za ŽCP',
+      'SE-1 = raspored manevriranja',
+      'SE-1 = proba kočenja',
+    ],
+  },
+  'br-se2': {
+    short: 'SE-2 = sastav i kočenje (masa, duljina, P, SKM/PKM, proba) – prvo se ispunjava',
+    options: [
+      'SE-2 = sastav i kočenje (masa, duljina, P, SKM/PKM, proba) – prvo se ispunjava',
+      'SE-2 = nalog za vožnju',
+      'SE-2 = samo potpis strojovođe',
+      'SE-2 = raspored manevriranja',
+    ],
+  },
+  'br-se3': {
+    short: 'SE-3 = pisani nalog (ŽCP, nepravilni, prolazak uz STOJ, radovi) – potpišeš kad razumiješ',
+    options: [
+      'SE-3 = pisani nalog (ŽCP, nepravilni, prolazak uz STOJ, radovi) – potpišeš kad razumiješ',
+      'SE-3 = uvijek umjesto SE-1',
+      'SE-3 = samo proba kočenja',
+      'SE-3 se ne potpisuje',
+    ],
+  },
+  'br-se4': {
+    short: 'SE-4 = primopredaja – potvrda da je vlak spreman za otpremu',
+    options: [
+      'SE-4 = primopredaja – potvrda da je vlak spreman za otpremu',
+      'SE-4 = pisani nalog za STOJ',
+      'SE-4 = nalog za vožnju',
+      'SE-4 = raspored manevriranja',
+    ],
+  },
+  'br-se5': {
+    short: 'SE-5 = raspored manevriranja',
+    options: [
+      'SE-5 = raspored manevriranja',
+      'SE-5 = sastav i kočenje',
+      'SE-5 = nalog za vožnju',
+      'SE-5 = primopredaja',
+    ],
+  },
+  'br-se3-potpis': {
+    short: 'Potpišeš SE-3 kad razumiješ usmeno + pisano; može uručiti i drugi radnik uz čitanje',
+    options: [
+      'Potpišeš SE-3 kad razumiješ usmeno + pisano; može uručiti i drugi radnik uz čitanje',
+      'Potpišeš uvijek prije čitanja',
+      'Samo ASZ smije uručiti SE-3',
+      'SE-3 se ne potpisuje',
+    ],
+  },
+  'br-proba-sto': {
+    short: 'Proba = ispravnost kočnica; A potpuna, B/C/D skraćene',
+    options: [
+      'Proba = ispravnost kočnica; A potpuna, B/C/D skraćene',
+      'Samo proba A postoji',
+      'Probe su P, R i G',
+      'Proba se ne radi na manevri',
+    ],
+  },
+  'br-proba-a': {
+    short: 'Proba A (potpuna): 1×/24h, nakon slavina, ako sumnjaš, stajanje >1h ispod −15°C',
+    options: [
+      'Proba A (potpuna): 1×/24h, nakon slavina, ako sumnjaš, stajanje >1h ispod −15°C',
+      'Proba A samo jednom godišnje',
+      'Proba A = skraćena proba',
+      'Proba A samo noću',
+    ],
+  },
+  'br-proba-skracene': {
+    short: 'Skraćene B, C, D – postupak isti, pregledava se dio vlaka',
+    options: [
+      'Skraćene B, C, D – postupak isti, pregledava se dio vlaka',
+      'Skraćene su samo A i B',
+      'Skraćene imaju potpuno drugi postupak',
+      'Skraćene se ne bilježe u SE-2',
+    ],
+  },
+  'br-proba-zabrt': {
+    short: 'Zabrtvljenost GV/1 min: putnički 0,3 bar, teretni 0,4 bar',
+    options: [
+      'Zabrtvljenost GV/1 min: putnički 0,3 bar, teretni 0,4 bar',
+      'Putnički 0,4 – teretni 0,3',
+      'Oboje 1 bar',
+      'Nema granice',
+    ],
+  },
+  'br-proba-znakovi': {
+    short: 'Poziv → Zakoči → Otkoči (+ brzo) → Završena',
+    options: [
+      'Poziv → Zakoči → Otkoči (+ brzo) → Završena',
+      'Samo sirena PAZI',
+      'Samo SE-3',
+      'Bez reakcije kočnikom',
+    ],
+  },
+  'br-proba-skm': {
+    short: 'Automatska zračna; SKM ≥ PKM (u SE-2)',
+    options: [
+      'Automatska zračna; SKM ≥ PKM (u SE-2)',
+      'Samo ručna kočnica',
+      'SKM smije biti manja od PKM',
+      'Kočenje se ne bilježi',
+    ],
+  },
+  'br-proba-brzo': {
+    short: 'Brzo kočenje: stati na najkraćem putu zbog nepredviđene situacije',
+    options: [
+      'Brzo kočenje: stati na najkraćem putu zbog nepredviđene situacije',
+      'Samo u kolodvoru',
+      'Umjesto probe A',
+      'Samo noću',
+    ],
+  },
+  'br-otprema': {
+    short: 'Otprema = zapovijed prometnika za polazak/prolazak – tek tad krećeš',
+    options: [
+      'Otprema = zapovijed prometnika za polazak/prolazak – tek tad krećeš',
+      'Otprema = SE-2',
+      'Otprema = proba kočenja',
+      'Krećeš bez otpreme ako kasniš',
+    ],
+  },
+  'br-polazak-usmeno': {
+    short: 'Polazak može usmeno; s putnicima ne krećeš bez znaka',
+    options: [
+      'Polazak može usmeno; s putnicima ne krećeš bez znaka',
+      'Uvijek krećeš sam',
+      'Usmeni polazak je zabranjen',
+      'S putnicima krećeš čim staneš',
+    ],
+  },
+  'br-nepravilni': {
+    short: 'Nepravilni = suprotan smjer; SE-3 + ograničenja brzine',
+    options: [
+      'Nepravilni = suprotan smjer; SE-3 + ograničenja brzine',
+      'Nepravilni = jednokolosje',
+      'Bez SE-3, punom brzinom',
+      'Samo noću',
+    ],
+  },
+  'br-prolazak-stoj': {
+    short: 'Uz STOJ samo uz dozvolu (SE-3 / usmeno + naprijed) – inače stani',
+    options: [
+      'Uz STOJ samo uz dozvolu (SE-3 / usmeno + naprijed) – inače stani',
+      'Uvijek smiješ proći crveno',
+      'Samo zviždi i idi',
+      'Samo noću smiješ',
+    ],
+  },
+  'br-pazi': {
+    short: 'PAZI = 1 dugačak: radovi, ŽCP, tunel/most, nepravilni, prilazni…',
+    options: [
+      'PAZI = 1 dugačak: radovi, ŽCP, tunel/most, nepravilni, prilazni…',
+      'PAZI = 5 kratkih',
+      'Samo u kolodvoru',
+      'Samo za probu kočenja',
+    ],
+  },
+  'br-stani-pruga': {
+    short: 'Javi prometniku/TK odmah; na otvorenoj pruzi i nakon 15 min',
+    options: [
+      'Javi prometniku/TK odmah; na otvorenoj pruzi i nakon 15 min',
+      'Samo ASZ nakon 24 h',
+      'Ne javljaj se',
+      'Samo ECM',
+    ],
+  },
+  'br-iznimni': {
+    short: 'Iznimni prolazak = „Prolazak slobodan“ iako po redu staješ',
+    options: [
+      'Iznimni prolazak = „Prolazak slobodan“ iako po redu staješ',
+      'Iznimni = uvijek stani',
+      'Isto što i SE-5',
+      'Bez znaka prometnika',
+    ],
+  },
+  'br-granica-man': {
+    short: 'Maneura do granice; preko samo uz odobrenje prometnika',
+    options: [
+      'Maneura do granice; preko samo uz odobrenje prometnika',
+      'Slobodno na otvorenu prugu',
+      'Granica ne postoji',
+      'Samo noću preko granice',
+    ],
+  },
+  'br-presjecanje': {
+    short: 'Presjecanje niz jezičak, max 20; uz jezičak tek nakon bravice',
+    options: [
+      'Presjecanje niz jezičak, max 20; uz jezičak tek nakon bravice',
+      'Max 80 bez bravice',
+      'Samo uz jezičak bez pregleda',
+      'Nije bitno',
+    ],
+  },
+  'br-maneura-brz': {
+    short: 'Maneura: 30 km/h preko skretnica; 20 ako je netko na boku',
+    options: [
+      'Maneura: 30 km/h preko skretnica; 20 ako je netko na boku',
+      'Puna brzina',
+      'Max 5 km/h uvijek',
+      '100 km/h preko skretnica',
+    ],
+  },
 }
 
 function hashSeed(str) {
